@@ -788,6 +788,69 @@ body { padding-bottom: var(--bottom-nav-h); }
 .trust-rule-text{font-size:13px;line-height:1.7;color:var(--ink)}
 .trust-rule-text strong{color:var(--forest);font-weight:700;display:block;margin-bottom:3px}
 .trust-note{margin:0 18px 4px;background:rgba(212,160,23,.08);border:1px solid rgba(212,160,23,.2);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--earth);line-height:1.6;display:flex;gap:8px;align-items:flex-start}
+/* ══ DELETE CONFIRM DIALOG ══ */
+.del-confirm-bg {
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(10,22,14,.7);
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+.del-confirm-bg.open { display: flex; animation: fadeIn .18s ease; }
+.del-confirm-box {
+  background: var(--white); border-radius: 22px;
+  width: 100%; max-width: 320px;
+  padding: 24px 20px 20px;
+  animation: popIn .25s cubic-bezier(.22,.68,0,1.3);
+  text-align: center;
+  box-shadow: var(--sh-lg);
+}
+@keyframes popIn { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
+.del-confirm-icon {
+  width: 56px; height: 56px; border-radius: 18px;
+  background: rgba(230,57,70,.1);
+  border: 1px solid rgba(230,57,70,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--rose);
+  margin: 0 auto 14px;
+}
+.del-confirm-title {
+  font-family: 'Tiro Bangla', serif;
+  font-size: 17px; color: var(--ink);
+  margin-bottom: 8px; font-weight: 700;
+}
+.del-confirm-msg {
+  font-size: 13px; color: var(--muted);
+  line-height: 1.6; margin-bottom: 20px;
+}
+.del-confirm-name {
+  font-weight: 700; color: var(--forest);
+}
+.del-confirm-btns {
+  display: flex; gap: 10px;
+}
+.del-confirm-no {
+  flex: 1; padding: 12px;
+  border: 1.5px solid var(--border); border-radius: 14px;
+  background: var(--bg); color: var(--ink);
+  font-size: 14px; font-weight: 700;
+  font-family: 'Hind Siliguri', sans-serif;
+  cursor: pointer; transition: .15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.del-confirm-no:active { background: var(--border); }
+.del-confirm-yes {
+  flex: 1; padding: 12px;
+  border: none; border-radius: 14px;
+  background: linear-gradient(135deg, var(--rose), #c1121f);
+  color: #fff; font-size: 14px; font-weight: 700;
+  font-family: 'Hind Siliguri', sans-serif;
+  cursor: pointer; transition: .15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  box-shadow: 0 4px 14px rgba(230,57,70,.35);
+}
+.del-confirm-yes:active { transform: scale(.96); }
+
 .dis-item.clickable{cursor:pointer;transition:background .15s,transform .1s}
 .dis-item.clickable:active{background:rgba(45,122,79,.1);transform:scale(.95)}
 .dis-item.clickable:hover{background:rgba(45,122,79,.06)}
@@ -1768,6 +1831,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initBottomNav();
   initOnlineSignal();
   initChat();
+  // real-time cart sync শুরু করো (phone থাকলে)
+  setTimeout(startCartRtListener, 1500);
 });
 
 /* ══ PRESENCE TRACKING ══ */
@@ -2897,12 +2962,15 @@ function addToCart(product, qty){
 function parsePrice(v){ return typeof v==='number' ? v : (parseFloat(String(v).replace(/[^\d.]/g,''))||0); }
 
 function saveCart(){
+  const now = Date.now();
   localStorage.setItem('fh_cart', JSON.stringify(cart));
+  localStorage.setItem('fh_cart_ts', now);
   // Firebase-এ sync করো যদি phone থাকে
   const profile = JSON.parse(localStorage.getItem('fh_profile') || '{}');
   const phone = (profile.phone || '').replace(/[^0-9]/g,'');
   if(phone && phone.length >= 10){
-    db.ref('fh/userCarts/' + phone).set({ items: cart, updatedAt: Date.now() }).catch(()=>{});
+    _cartRtIgnoreNext = true; // নিজের write-এর echo ignore করো
+    db.ref('fh/userCarts/' + phone).set({ items: cart, updatedAt: now }).catch(()=>{ _cartRtIgnoreNext = false; });
   }
 }
 
@@ -2980,6 +3048,8 @@ function reinitChatAfterLogin(){
   if(chatListener && chatRef) chatRef.off('value', chatListener);
   initChat();
   if(wasOpen) startChatListener();
+  // cart real-time listener আবার শুরু করো (নতুন user এর জন্য)
+  setTimeout(startCartRtListener, 500);
 }
 
 function smartCall(e) {
@@ -3128,7 +3198,27 @@ function changeCartQty(idx, d){
   if(!cart[idx]) return;
   const newQty = (cart[idx].cartQty || 1) + d;
   if(newQty <= 0){
-    removeCartItem(idx);
+    // qty 0 হলে সরাসরি সরাও (confirmation ছাড়া)
+    const item = cart[idx];
+    const container = document.getElementById('cartItems');
+    const cartItemEls = container.querySelectorAll('.cart-item');
+    const targetEl = cartItemEls[idx];
+    if(targetEl){
+      targetEl.style.transition = 'opacity .22s ease, transform .22s ease, max-height .28s ease, margin .28s ease';
+      targetEl.style.overflow = 'hidden';
+      targetEl.style.maxHeight = targetEl.offsetHeight + 'px';
+      void targetEl.offsetHeight;
+      targetEl.style.opacity = '0';
+      targetEl.style.transform = 'translateX(60px) scale(.95)';
+      targetEl.style.maxHeight = '0';
+      targetEl.style.marginBottom = '0';
+    }
+    setTimeout(() => {
+      cart.splice(idx, 1);
+      saveCart();
+      renderCartCount();
+      renderCartItems();
+    }, 280);
     return;
   }
   cart[idx].cartQty = newQty;
@@ -3138,12 +3228,95 @@ function changeCartQty(idx, d){
 }
 
 function removeCartItem(idx){
-  const name = cart[idx].name;
-  cart.splice(idx, 1);
-  saveCart();
-  renderCartCount();
-  renderCartItems();
-  showToast(`"${name}" সরানো হয়েছে`);
+  const item = cart[idx];
+  if(!item) return;
+  // confirmation dialog দেখাও
+  document.getElementById('delConfirmName').textContent = '"' + item.name + '"';
+  document.getElementById('delConfirmBg').classList.add('open');
+  document.getElementById('delConfirmYesBtn').onclick = function(){
+    closeDelConfirm();
+    const realIdx = cart.indexOf(item);
+    if(realIdx === -1) return;
+    const name = item.name;
+
+    // ১) DOM থেকে সেই cart-item টা তাৎক্ষণিক animate করে সরাও
+    const container = document.getElementById('cartItems');
+    const cartItemEls = container.querySelectorAll('.cart-item');
+    const targetEl = cartItemEls[realIdx];
+    if(targetEl){
+      targetEl.style.transition = 'opacity .22s ease, transform .22s ease, max-height .28s ease, margin .28s ease, padding .28s ease';
+      targetEl.style.overflow = 'hidden';
+      targetEl.style.maxHeight = targetEl.offsetHeight + 'px';
+      // force reflow
+      void targetEl.offsetHeight;
+      targetEl.style.opacity = '0';
+      targetEl.style.transform = 'translateX(60px) scale(.95)';
+      targetEl.style.maxHeight = '0';
+      targetEl.style.marginBottom = '0';
+      targetEl.style.paddingTop = '0';
+      targetEl.style.paddingBottom = '0';
+    }
+
+    // ২) animation শেষে data আপডেট + full re-render
+    setTimeout(() => {
+      cart.splice(realIdx, 1);
+      saveCart();
+      renderCartCount();
+      renderCartItems();
+      showToast(`🗑️ "${name}" সরানো হয়েছে`);
+    }, 280);
+  };
+}
+
+function closeDelConfirm(){
+  document.getElementById('delConfirmBg').classList.remove('open');
+}
+
+/* ══ REAL-TIME CART FIREBASE LISTENER ══ */
+let cartRtListener = null;
+let cartRtRef = null;
+let _cartRtIgnoreNext = false; // নিজের write-এর পর listener skip করতে
+
+function startCartRtListener(){
+  const profile = JSON.parse(localStorage.getItem('fh_profile') || '{}');
+  const phone = (profile.phone || '').replace(/[^0-9]/g,'');
+  if(!phone || phone.length < 10) return;
+
+  // আগের listener সরাও
+  if(cartRtRef && cartRtListener){
+    cartRtRef.off('value', cartRtListener);
+    cartRtListener = null;
+  }
+
+  cartRtRef = db.ref('fh/userCarts/' + phone);
+  cartRtListener = cartRtRef.on('value', snap => {
+    if(_cartRtIgnoreNext){ _cartRtIgnoreNext = false; return; }
+    if(!snap.exists()) return;
+    const fbData = snap.val();
+    if(!fbData || !fbData.items) return;
+    // লোকাল cart এর চেয়ে নতুন হলেই sync করো
+    const fbTs = fbData.updatedAt || 0;
+    const localTs = parseInt(localStorage.getItem('fh_cart_ts') || '0');
+    if(fbTs > localTs){
+      cart = fbData.items;
+      localStorage.setItem('fh_cart', JSON.stringify(cart));
+      localStorage.setItem('fh_cart_ts', fbTs);
+      renderCartCount();
+      // cart panel খোলা থাকলে live refresh
+      const cartBg = document.getElementById('cartBg');
+      if(cartBg && cartBg.classList.contains('open')){
+        renderCartItems();
+        showToast('🔄 কার্ট আপডেট হয়েছে');
+      }
+    }
+  });
+}
+
+function stopCartRtListener(){
+  if(cartRtRef && cartRtListener){
+    cartRtRef.off('value', cartRtListener);
+    cartRtListener = null;
+  }
 }
 
 /* ── WhatsApp Order from Cart ── */
@@ -5002,6 +5175,26 @@ function dgGoTo(idx){
     </div>
     <div class="trust-note" id="trustSheetNote"></div>
     <div class="trust-rules-list" id="trustRulesList"></div>
+  </div>
+</div>
+
+<!-- ══ DELETE CONFIRM DIALOG ══ -->
+<div class="del-confirm-bg" id="delConfirmBg">
+  <div class="del-confirm-box">
+    <div class="del-confirm-icon"><i class="fas fa-trash-alt"></i></div>
+    <div class="del-confirm-title">পণ্য সরাবেন?</div>
+    <div class="del-confirm-msg">
+      <span class="del-confirm-name" id="delConfirmName"></span><br>
+      কার্ট থেকে সরিয়ে দেওয়া হবে।
+    </div>
+    <div class="del-confirm-btns">
+      <button class="del-confirm-no" onclick="closeDelConfirm()">
+        <i class="fas fa-times"></i> না
+      </button>
+      <button class="del-confirm-yes" id="delConfirmYesBtn">
+        <i class="fas fa-check"></i> হ্যাঁ
+      </button>
+    </div>
   </div>
 </div>
 
