@@ -471,7 +471,49 @@ img { max-width: 100%; display: block; }
 body { padding-bottom: var(--bottom-nav-h); }
 
 /* ══ DETAIL SHEET ══ */
-/* ══ DETAIL SHEET — Modern ══ */
+/* ══ DETAIL IMAGE GALLERY ══ */
+.detail-gallery {
+  position: relative; width: 100%; height: 100%; overflow: hidden;
+}
+.dg-track { width: 100%; height: 100%; }
+.dg-slide {
+  display: none; width: 100%; height: 100%; cursor: zoom-in;
+}
+.dg-slide.active { display: block; }
+.dg-slide img { width: 100%; height: 100%; object-fit: cover; }
+
+.dg-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(0,0,0,.45); border: none; color: #fff;
+  font-size: 12px; cursor: pointer; z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); transition: .15s;
+}
+.dg-prev { left: 10px; }
+.dg-next { right: 10px; }
+.dg-btn:active { transform: translateY(-50%) scale(.85); background: rgba(0,0,0,.65); }
+
+.dg-dots {
+  position: absolute; bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 3;
+}
+.dg-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,.4); cursor: pointer; transition: .2s;
+}
+.dg-dot.active { background: #fff; transform: scale(1.3); }
+
+.dg-counter {
+  position: absolute; top: 12px; left: 12px; z-index: 3;
+  background: rgba(0,0,0,.4); color: #fff;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px;
+  backdrop-filter: blur(4px);
+}
+
+/* ══ DETAIL HERO ══ */
 .detail-bg {
   position: fixed; inset: 0; z-index: 500;
   background: rgba(5,15,10,.75);
@@ -1824,7 +1866,7 @@ function _removePresence(){
 
 /* ── Config (WhatsApp number + website settings) ── */
 function loadConfig(){
-  db.ref('fh/websiteConfig').once('value', snap => {
+  db.ref('fh/websiteConfig').on('value', snap => {
     const cfg = snap.val();
     if(!cfg) return;
     if(cfg.whatsapp){ waPhone = cfg.whatsapp; }
@@ -1841,7 +1883,7 @@ function checkMaintenance(){
 
 /* ── Broadcast Notice ── */
 function loadBroadcastNotice(){
-  db.ref('fh/broadcastNotices').limitToLast(1).once('value', snap => {
+  db.ref('fh/broadcastNotices').limitToLast(1).on('value', snap => {
     const data = snap.val();
     if(!data) return;
     const notices = Object.values(data);
@@ -1910,7 +1952,8 @@ function loadProducts(){
           price:    parseFloat(p.price || p.sell || 0),
           discount: parseFloat(p.discount || 0),
           qty:      parseFloat(p.qty !== undefined ? p.qty : (p.stock !== undefined ? p.stock : 0)),
-          img:      p.img || p.image || '',
+          img:      p.img || (Array.isArray(p.images) && p.images[0]) || p.image || '',
+          images:   Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.img ? [p.img] : (p.image ? [p.image] : [])),
           branch:   p.branch || 'Main',
           desc:     p.desc || p.description || '',
           sizes:    Array.isArray(p.sizes) ? p.sizes : [],
@@ -1921,7 +1964,7 @@ function loadProducts(){
           inStock:  p.inStock !== false && (parseFloat(p.qty !== undefined ? p.qty : (p.stock !== undefined ? p.stock : 0)) > 0 || p.inStock === true)
         }));
     } else {
-      db.ref('fh/inventory').once('value', invSnap => {
+      db.ref('fh/inventory').on('value', invSnap => {
         const inv = invSnap.val();
         if(!inv){ showNoProducts(); return; }
         const arr = Array.isArray(inv) ? inv.filter(Boolean) : Object.values(inv).filter(Boolean);
@@ -2151,14 +2194,37 @@ function openDetail(idx){
 
   document.getElementById('detailCat').innerText = p.cat || 'সাধারণ';
 
-  // Hero image
+  // Hero image — multiple images support
   const imgWrap = document.getElementById('detailImgWrap');
   const imgPlaceholder = document.getElementById('detailImgPlaceholder');
-  if(p.img){
-    imgWrap.innerHTML = `<img class="detail-img" src="${esc(p.img)}" alt="${esc(p.name)}"
-      onclick="openImgViewer('${esc(p.img)}')"
-      onerror="this.style.display='none';document.getElementById('detailImgPlaceholder').style.display='flex'">`;
+  const imgs = (p.images && p.images.length > 0) ? p.images : (p.img ? [p.img] : []);
+  if(imgs.length > 0){
     imgPlaceholder.style.display = 'none';
+    if(imgs.length === 1){
+      imgWrap.innerHTML = `<img class="detail-img" src="${esc(imgs[0])}" alt="${esc(p.name)}"
+        onclick="openImgViewer('${esc(imgs[0])}')"
+        onerror="this.style.display='none';document.getElementById('detailImgPlaceholder').style.display='flex'">`;
+    } else {
+      const slides = imgs.map((src, i) =>
+        `<div class="dg-slide${i===0?' active':''}" onclick="openImgViewer('${esc(src)}')">
+          <img class="detail-img" src="${esc(src)}" alt="${esc(p.name)} ${i+1}"
+            onerror="this.parentElement.style.display='none'">
+        </div>`
+      ).join('');
+      const dots = imgs.map((_, i) =>
+        `<div class="dg-dot${i===0?' active':''}" onclick="dgGoTo(${i})"></div>`
+      ).join('');
+      imgWrap.innerHTML = `
+        <div class="detail-gallery" id="detailGallery">
+          <div class="dg-track" id="dgTrack">${slides}</div>
+          <button class="dg-btn dg-prev" onclick="dgMove(-1)"><i class="fas fa-chevron-left"></i></button>
+          <button class="dg-btn dg-next" onclick="dgMove(1)"><i class="fas fa-chevron-right"></i></button>
+          <div class="dg-dots">${dots}</div>
+          <div class="dg-counter" id="dgCounter">1 / ${imgs.length}</div>
+        </div>`;
+      window._dgImgs = imgs;
+      window._dgIdx = 0;
+    }
   } else {
     imgWrap.innerHTML = '';
     imgPlaceholder.style.display = 'flex';
@@ -4891,6 +4957,39 @@ function stopAutoFaceLogin(){
   if(widget) widget.style.display = 'none';
   autoFaceActive = false;
 }
+
+/* ══ DETAIL GALLERY NAVIGATION ══ */
+function dgMove(dir){
+  const imgs = window._dgImgs || [];
+  if(!imgs.length) return;
+  window._dgIdx = (window._dgIdx + dir + imgs.length) % imgs.length;
+  dgGoTo(window._dgIdx);
+}
+function dgGoTo(idx){
+  const imgs = window._dgImgs || [];
+  window._dgIdx = idx;
+  const slides = document.querySelectorAll('#detailGallery .dg-slide');
+  const dots   = document.querySelectorAll('#detailGallery .dg-dot');
+  slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+  dots.forEach((d, i)   => d.classList.toggle('active', i === idx));
+  const counter = document.getElementById('dgCounter');
+  if(counter) counter.textContent = (idx + 1) + ' / ' + imgs.length;
+}
+
+// Touch swipe for gallery
+(function(){
+  let _tx = 0;
+  document.addEventListener('touchstart', e => {
+    const g = e.target.closest('#detailGallery');
+    if(g) _tx = e.touches[0].clientX;
+  }, {passive:true});
+  document.addEventListener('touchend', e => {
+    const g = e.target.closest('#detailGallery');
+    if(!g || !(window._dgImgs && window._dgImgs.length > 1)) return;
+    const diff = _tx - e.changedTouches[0].clientX;
+    if(Math.abs(diff) > 40) dgMove(diff > 0 ? 1 : -1);
+  }, {passive:true});
+})();
 </script>
 
 <!-- ══ TRUST RULES BOTTOM SHEET ══ -->
