@@ -1800,22 +1800,6 @@ function esc(str){
 
 /* ══ TOAST NOTIFICATION ══ */
 let _toastTimer = null;
-function showToast(msg, duration = 3000) {
-  const t = document.getElementById('toast');
-  const m = document.getElementById('toastMsg');
-  if (!t || !m) return;
-  m.textContent = msg;
-  t.style.opacity = '1';
-  t.classList.add('show');
-  if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => {
-    t.style.opacity = '0';
-    setTimeout(() => {
-      t.classList.remove('show');
-      t.style.opacity = '';
-    }, 300);
-  }, duration);
-}
 
 /* ══ INIT ══ */
 document.addEventListener('DOMContentLoaded', () => {
@@ -2785,53 +2769,134 @@ function changeDetailQty(d){
 function addToCartFromDetail(){
   if(!activeProduct) return;
   const grandQ = _grandQty();
-  // size/color আছে কিনা দেখো
   const sz = (document.getElementById("detailSizeSelect")||{}).value||"";
   const cl = (document.getElementById("detailColorSelect")||{}).value||"";
   const hasCombination = sz || cl;
 
+  // পরিমাণ যাচাই
   if(hasCombination){
-    // combination mode: প্রতিটা line আলাদাভাবে cart এ যোগ করো
     _saveCurrentLine();
     const lines = Object.values(_orderLines).filter(l => l.qty > 0);
     if(lines.length === 0){ showToast('⚠️ পরিমাণ নির্বাচন করুন'); return; }
-    lines.forEach(l => {
-      const p = activeProduct;
-      const cartProduct = {...p, price: l.unitPrice,
-        _size: l.size||'', _color: l.color||'',
-        name: p.name + (l.size ? ' ['+l.size+']' : '') + (l.color ? ' ['+l.color+']' : '')
-      };
-      addToCart(cartProduct, l.qty);
-    });
-    // Detail বন্ধ করো
-    document.getElementById('detailBg').classList.remove('open');
-    // Cart খুলুন
-    setTimeout(() => {
-      renderCartItems();
-      document.getElementById('cartBg').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      setActiveNav('bnCart');
-      showCartAddedConfirm(activeProduct.name, grandQ);
-    }, 180);
   } else {
-    // simple mode: size/color নেই
     if(_curLineQty === 0){ showToast('⚠️ পরিমাণ নির্বাচন করুন'); return; }
-    const p = activeProduct;
-    const effPrice = _effPrice();
-    addToCart({...p, price: effPrice}, _curLineQty);
-    const addedQty = _curLineQty;
-    const addedName = p.name;
+  }
+
+  // Confirmation dialog দেখাও
+  const effPrice = _effPrice();
+  const totalAmt = hasCombination ? _grandAmount() : effPrice * _curLineQty;
+  const totalQty = hasCombination ? grandQ : _curLineQty;
+  showAddToCartConfirm(activeProduct.name, totalQty, totalAmt, function(){
+    // YES — কার্টে যোগ করো
+    if(hasCombination){
+      const lines = Object.values(_orderLines).filter(l => l.qty > 0);
+      lines.forEach(l => {
+        const p = activeProduct;
+        const cartProduct = {...p, price: l.unitPrice,
+          _size: l.size||'', _color: l.color||'',
+          name: p.name + (l.size ? ' ['+l.size+']' : '') + (l.color ? ' ['+l.color+']' : '')
+        };
+        addToCart(cartProduct, l.qty);
+      });
+    } else {
+      addToCart({...activeProduct, price: effPrice}, _curLineQty);
+    }
+    const addedName = activeProduct.name;
     // Detail বন্ধ করো
     document.getElementById('detailBg').classList.remove('open');
-    // Cart খুলুন
+    document.body.style.overflow = '';
+    updateWishlistBar();
+    // Cart count আপডেট করো এবং হোমে থাকো
     setTimeout(() => {
-      renderCartItems();
-      document.getElementById('cartBg').classList.add('open');
-      document.body.style.overflow = 'hidden';
-      setActiveNav('bnCart');
-      showCartAddedConfirm(addedName, addedQty);
+      renderCartCount();
+      setActiveNav('bnHome');
+      showCartAddedConfirm(addedName, totalQty);
     }, 180);
-  }
+  });
+}
+
+function showAddToCartConfirm(name, qty, amount, onYes){
+  // পুরনো dialog থাকলে সরাও
+  const old = document.getElementById('addCartConfirmDialog');
+  if(old) old.remove();
+
+  const el = document.createElement('div');
+  el.id = 'addCartConfirmDialog';
+  el.style.cssText = `
+    position:fixed;inset:0;z-index:9500;
+    background:rgba(10,22,14,.72);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(6px);
+    padding:20px;
+    animation:fadeIn .18s ease;
+  `;
+  el.innerHTML = `
+    <div style="
+      background:var(--white);border-radius:22px;
+      width:100%;max-width:340px;
+      overflow:hidden;
+      box-shadow:0 20px 60px rgba(10,22,14,.4);
+      animation:popIn .25s cubic-bezier(.22,.68,0,1.3);
+    ">
+      <!-- আইকন হেডার -->
+      <div style="background:linear-gradient(135deg,var(--forest),var(--leaf));padding:22px 20px 18px;text-align:center;">
+        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);
+          display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;">
+          🛍️
+        </div>
+        <div style="font-family:'Tiro Bangla',serif;font-size:17px;color:#fff;font-weight:600;margin-bottom:4px;">
+          কার্টে যোগ করবেন?
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,.65);">নিশ্চিত করুন</div>
+      </div>
+
+      <!-- পণ্যের তথ্য -->
+      <div style="padding:16px 20px 10px;">
+        <div style="background:var(--bg);border-radius:14px;padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.4;">${name}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:12px;color:var(--muted);">পরিমাণ: <strong style="color:var(--ink);">${qty} টি</strong></div>
+            <div style="font-size:15px;font-weight:800;color:var(--leaf);font-family:'Tiro Bangla',serif;">৳${Math.round(amount)}</div>
+          </div>
+        </div>
+
+        <!-- বাটন -->
+        <div style="display:flex;gap:10px;">
+          <button id="addCartConfirmNo"
+            style="flex:1;padding:13px 0;border:1.5px solid var(--border);border-radius:14px;
+              background:var(--white);color:var(--muted);font-size:14px;font-weight:700;
+              font-family:'Hind Siliguri',sans-serif;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;">
+            <i class="fas fa-times"></i> না
+          </button>
+          <button id="addCartConfirmYes"
+            style="flex:2;padding:13px 0;border:none;border-radius:14px;
+              background:linear-gradient(135deg,var(--leaf),var(--mint));
+              color:#fff;font-size:14px;font-weight:700;
+              font-family:'Hind Siliguri',sans-serif;cursor:pointer;
+              display:flex;align-items:center;justify-content:center;gap:6px;
+              box-shadow:0 6px 18px rgba(45,122,79,.35);transition:.15s;">
+            <i class="fas fa-check"></i> হ্যাঁ, যোগ করুন
+          </button>
+        </div>
+      </div>
+      <div style="height:8px;"></div>
+    </div>
+  `;
+  document.body.appendChild(el);
+
+  // No বাটন
+  el.querySelector('#addCartConfirmNo').onclick = function(){
+    el.style.animation = 'fadeOut .18s ease forwards';
+    setTimeout(() => el.remove(), 180);
+  };
+  // Yes বাটন
+  el.querySelector('#addCartConfirmYes').onclick = function(){
+    el.style.animation = 'fadeOut .18s ease forwards';
+    setTimeout(() => { el.remove(); onYes(); }, 180);
+  };
+  // Background click = No
+  el.addEventListener('click', function(e){ if(e.target === el){ el.querySelector('#addCartConfirmNo').click(); } });
 }
 
 function showCartAddedConfirm(name, qty){
@@ -2979,8 +3044,10 @@ function renderCartCount(){
   const el = document.getElementById('cartCount');
   const bnBubble = document.getElementById('bnCartBubble');
   const profCartCount = document.getElementById('profCartCount');
-  el.innerText = total;
-  el.style.display = total > 0 ? 'flex' : 'none';
+  if(el){
+    el.innerText = total;
+    el.style.display = total > 0 ? 'flex' : 'none';
+  }
   if(bnBubble){
     bnBubble.innerText = total;
     bnBubble.style.display = total > 0 ? 'flex' : 'none';
@@ -3005,14 +3072,6 @@ function toggleCart(){
     document.getElementById('scrollTopBtn').classList.remove('show');
   }
   updateWishlistBar();
-}
-
-function closeCartOnBg(e){
-  if(e.target === document.getElementById('cartBg')){
-    document.getElementById('cartBg').classList.remove('open');
-    document.body.style.overflow = '';
-    if(window.scrollY > 400) document.getElementById('scrollTopBtn').classList.add('show');
-  }
 }
 
 function closeCartOnBg(e){
@@ -4114,6 +4173,9 @@ function loadSavedProfile(){
   }
   updateNavbarAvatar(saved.avatar || '', saved.name || '');
 
+  // phone declaration — সব জায়গায় ব্যবহারের আগে
+  const phone = (saved.phone || '').replace(/[^0-9]/g,'');
+
   // phone থাকলে Firebase থেকে blocked check করো (real-time)
   if(phone && phone.length >= 10){
     db.ref('fh/users/' + phone).once('value').then(snap => {
@@ -4134,7 +4196,6 @@ function loadSavedProfile(){
   }
 
   // phone থাকলে Firebase থেকে cart ও wishlist sync করো
-  const phone = (saved.phone || '').replace(/[^0-9]/g,'');
   if(phone && phone.length >= 10){
     db.ref('fh/userCarts/' + phone).once('value').then(s => {
       if(s.exists() && s.val().items && s.val().items.length > 0){
@@ -4849,7 +4910,7 @@ async function checkAutoFaceLogin(){
   // Firebase এ কোনো registered user আছে কিনা চেক করো
   let hasFirebase = false;
   try {
-    const snap = await db.ref('fh/users').orderByChild('registeredAt').limitToFirst(1).once('value');
+    const snap = await db.ref('fh/users').limitToFirst(1).once('value');
     hasFirebase = snap.exists();
   } catch(e){}
 
