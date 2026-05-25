@@ -24,8 +24,7 @@
 <!-- Chart.js — pinned to exact version -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
   crossorigin="anonymous"></script>
-<!-- MediaPipe Vision Tasks — same engine as index.html -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_bundle.js" crossorigin="anonymous"></script>
+<!-- MediaPipe Vision Tasks — loaded dynamically via import() inside the face-recognition module -->
 <!-- Firebase 9.22.0 — gstatic does not support SRI headers, but version is pinned -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js" crossorigin="anonymous"></script>
