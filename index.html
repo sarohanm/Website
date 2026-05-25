@@ -24,7 +24,8 @@
 <!-- Chart.js — pinned to exact version -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
   crossorigin="anonymous"></script>
-<!-- MediaPipe Vision Tasks — loaded dynamically via import() inside the face-recognition module -->
+<!-- MediaPipe Vision Tasks — same engine as index.html -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_bundle.js" crossorigin="anonymous"></script>
 <!-- Firebase 9.22.0 — gstatic does not support SRI headers, but version is pinned -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js" crossorigin="anonymous"></script>
@@ -6237,6 +6238,7 @@ async function wbEditProduct(prodId){
       const imgEl = document.getElementById('ep_img_preview');
       const imgSrc = _wbEditImgBase64 || (imgEl ? imgEl.src : '') || (p.image||'');
       const editImgs = (_wbEditImages||[]).filter(Boolean);
+      stopEpBarcodeScanner();
       return {
         name, price,
         discount: parseFloat(document.getElementById('ep_discount')?.value)||0,
@@ -6250,10 +6252,9 @@ async function wbEditProduct(prodId){
         featured: document.getElementById('ep_featured')?.checked||false,
         barcode: document.getElementById('ep_barcode')?.value?.trim()||null,
         image: imgSrc,
-        images: editImgs.length>1 ? editImgs : undefined,
+        images: editImgs.length>1 ? editImgs : null,
         youtubeEmbed: document.getElementById('ep_youtube')?.value?.trim()||null
       };
-      stopEpBarcodeScanner();
     }
   });
 
@@ -6267,6 +6268,7 @@ async function wbEditProduct(prodId){
     showToast('✓ পণ্য আপডেট হয়েছে!');
     Swal.fire({icon:'success',title:'আপডেট সম্পন্ন!',text:formValues.name,timer:1500,showConfirmButton:false,background:'#1a1f2e',color:'#fff'});
   } catch(e){
+    console.error('Product update error:', e);
     showToast('❌ আপডেট করতে সমস্যা হয়েছে');
   }
 }
