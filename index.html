@@ -306,7 +306,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
 .face-btn:active{transform:scale(.96)}
 .face-btn-capture{background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--ink)}
 .face-btn-cancel{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
-.face-preview-img{width:200px;height:200px;border-radius:50%;object-fit:cover;border:3px solid var(--success);margin:0 auto 16px;display:none}
+.face-preview-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;z-index:5}
 .face-stored-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(26,158,92,.15);border:1px solid rgba(26,158,92,.3);color:#4ade80;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;margin-bottom:12px}
 .sh-face-thumb{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(124,58,237,.4);flex-shrink:0}
 </style>
@@ -1852,18 +1852,21 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
       <div class="face-viewport" id="faceViewport">
         <video id="faceVideo" autoplay playsinline muted></video>
         <canvas id="faceCanvas" style="display:none"></canvas>
-        <div class="face-guide"></div>
+        <img id="facePreviewImg" class="face-preview-img" alt="">
+        <div class="face-guide" id="faceGuide"></div>
       </div>
     </div>
     <!-- Gallery view -->
     <div id="faceGallerySection" style="display:none">
-      <div style="width:200px;height:200px;margin:0 auto 16px;border-radius:50%;overflow:hidden;border:3px dashed rgba(212,146,42,.5);background:rgba(255,255,255,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:.2s" id="galleryPickArea" onclick="document.getElementById('faceGalleryInput').click()">
+      <div class="face-viewport" id="faceGalleryViewport" style="border-style:dashed;cursor:pointer" onclick="document.getElementById('faceGalleryInput').click()">
         <input type="file" id="faceGalleryInput" accept="image/*" style="display:none" onchange="galleryPickAndProcess(this)">
-        <i class="fas fa-images" style="font-size:28px;color:rgba(212,146,42,.6);margin-bottom:8px"></i>
-        <span style="font-size:11px;color:rgba(255,255,255,.4);text-align:center;padding:0 16px">ট্যাপ করে গ্যালারি থেকে ছবি বাছুন</span>
+        <img id="facePreviewImgGal" class="face-preview-img" alt="" style="display:none">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px" id="galPlaceholder">
+          <i class="fas fa-images" style="font-size:28px;color:rgba(212,146,42,.6)"></i>
+          <span style="font-size:11px;color:rgba(255,255,255,.4);text-align:center;padding:0 16px">ট্যাপ করে গ্যালারি থেকে ছবি বাছুন</span>
+        </div>
       </div>
     </div>
-    <img id="facePreviewImg" class="face-preview-img" alt="">
     <div class="face-status info" id="faceStatus">ক্যামেরা চালু হচ্ছে...</div>
     <div class="face-btns">
       <button class="face-btn face-btn-cancel" onclick="closeFaceModal()">বাতিল</button>
@@ -1889,7 +1892,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
     <div class="face-status info" id="settingsFaceStatus" style="font-size:12px;font-weight:600;min-height:20px;margin-bottom:14px">ক্যামেরা চালু হচ্ছে...</div>
     <div style="display:flex;gap:8px">
       <button onclick="closeSettingsFaceLock()" style="flex:1;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">বাতিল</button>
-      <button id="settingsFaceCaptureBtn" onclick="captureSettingsFace()" disabled style="flex:2;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--ink)"><i class="fas fa-camera"></i> ভেরিফাই করুন</button>
+      <button id="settingsFaceCaptureBtn" onclick="captureSettingsFace()" style="flex:2;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--ink);display:none"><i class="fas fa-camera"></i> ভেরিফাই করুন</button>
     </div>
   </div>
 </div>
@@ -2091,10 +2094,7 @@ function checkStrength(pw){
 const captchaTypes=[
   ()=>{const a=Math.floor(Math.random()*20)+1,b=Math.floor(Math.random()*20)+1;captchaAnswer=String(a+b);return `${a} + ${b} = ?`;},
   ()=>{const a=Math.floor(Math.random()*15)+5,b=Math.floor(Math.random()*a)+1;captchaAnswer=String(a-b);return `${a} − ${b} = ?`;},
-  ()=>{const a=Math.floor(Math.random()*10)+2,b=Math.floor(Math.random()*10)+2;captchaAnswer=String(a*b);return `${a} × ${b} = ?`;},
-  ()=>{const w=['আম','কলা','লাল','নীল','বড়','ছোট'];const i=Math.floor(Math.floor(Math.random()*w.length));captchaAnswer=String(w[i].length);return `"${w[i]}" শব্দটিতে কতটি অক্ষর আছে?`;},
-  ()=>{const a=Math.floor(Math.random()*8)+2,b=Math.floor(Math.random()*5)+1;const ans=a*a+b;captchaAnswer=String(ans);return `${a}² + ${b} = ?`;},
-  ()=>{const nums=[3,5,7,9,11,13,15];const i=Math.floor(Math.random()*(nums.length-2));captchaAnswer=String(nums[i+2]);return `ধারা: ${nums[i]}, ${nums[i+1]}, ? — পরবর্তী সংখ্যা কত?`;}
+  ()=>{const a=Math.floor(Math.random()*10)+2,b=Math.floor(Math.random()*10)+2;captchaAnswer=String(a*b);return `${a} × ${b} = ?`;}
 ];
 function newCaptcha(){
   const arr=new Uint32Array(1);crypto.getRandomValues(arr);
@@ -2248,111 +2248,101 @@ function changePasswordWithFace(role){
   document.getElementById('settingsFaceSubtitle').innerText=(role==='admin'?'Admin':role==='ceo'?'CEO':'Settings')+' পাসওয়ার্ড পরিবর্তনের জন্য বায়োমেট্রিক যাচাই';
   document.getElementById('settingsFaceStatus').innerText='ক্যামেরা চালু হচ্ছে...';
   document.getElementById('settingsFaceStatus').className='face-status info';
-  document.getElementById('settingsFaceCaptureBtn').disabled=true;
+  document.getElementById('settingsFaceCaptureBtn').style.display='none';
   document.getElementById('settingsFacePreview').style.display='none';
   document.getElementById('settingsFaceViewport').style.display='block';
-  document.getElementById('settingsFaceCaptureBtn').style.display='block';
-  document.getElementById('settingsFaceCaptureBtn').innerHTML='<i class="fas fa-camera"></i> ভেরিফাই করুন';
-  document.getElementById('settingsFaceCaptureBtn').onclick=captureSettingsFace;
   document.getElementById('settingsFaceLock').style.display='flex';
   startSettingsFaceCam();
 }
-let _settingsFaceAutoTimer = null;
+let _settingsFaceAutoTimer=null, _settingsFaceRafId=null, _settingsFaceMatchStreak=0;
+const _SETTINGS_FACE_MATCH_NEEDED=3;
 
-async function startSettingsFaceCam(){
-  try{
-    settingsFaceStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:300,height:300},audio:false});
-    const vid=document.getElementById('settingsFaceVideo');
-    vid.srcObject=settingsFaceStream;
-    vid.onloadedmetadata=()=>{vid.play();
-      document.getElementById('settingsFaceStatus').innerText='✓ মুখ ফ্রেমের মধ্যে রাখুন';
-      document.getElementById('settingsFaceStatus').className='face-status ok';
-      document.getElementById('settingsFaceCaptureBtn').disabled=false;
-      // Auto-capture after 3 seconds
-      _settingsFaceAutoCountdown(3);
-    };
-  }catch(e){
-    document.getElementById('settingsFaceStatus').innerText='ক্যামেরা পাওয়া যায়নি — সরাসরি পাসওয়ার্ড পরিবর্তন করুন';
-    document.getElementById('settingsFaceStatus').className='face-status warn';
-    const btn=document.getElementById('settingsFaceCaptureBtn');
-    btn.innerHTML='<i class="fas fa-key"></i> এগিয়ে যান';btn.disabled=false;
-    btn.onclick=()=>{stopSettingsFaceCam();document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);};
-  }
+function stopSettingsFaceCam(){
+  if(_settingsFaceRafId){cancelAnimationFrame(_settingsFaceRafId);_settingsFaceRafId=null;}
+  if(settingsFaceStream){settingsFaceStream.getTracks().forEach(t=>t.stop());settingsFaceStream=null;}
+  if(_settingsFaceAutoTimer){clearInterval(_settingsFaceAutoTimer);_settingsFaceAutoTimer=null;}
 }
 
-function _settingsFaceAutoCountdown(sec){
-  if(_settingsFaceAutoTimer) clearInterval(_settingsFaceAutoTimer);
-  let remaining = sec;
-  const btn = document.getElementById('settingsFaceCaptureBtn');
-  document.getElementById('settingsFaceStatus').innerText=`✓ মুখ ফ্রেমের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`;
-  if(btn && !btn.disabled) btn.innerHTML=`<i class="fas fa-camera"></i> ধাপ ১: এখনই স্ক্যান (${remaining}s)`;
-  _settingsFaceAutoTimer = setInterval(()=>{
-    remaining--;
-    if(remaining <= 0){
-      clearInterval(_settingsFaceAutoTimer); _settingsFaceAutoTimer=null;
-      const captureBtn = document.getElementById('settingsFaceCaptureBtn');
-      if(captureBtn && captureBtn.onclick) captureBtn.onclick();
-    } else {
-      document.getElementById('settingsFaceStatus').innerText=`✓ মুখ ফ্রেমের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`;
-      const captureBtn = document.getElementById('settingsFaceCaptureBtn');
-      if(captureBtn && !captureBtn.disabled) captureBtn.innerHTML=`<i class="fas fa-camera"></i> ধাপ ১: এখনই স্ক্যান (${remaining}s)`;
-    }
-  }, 1000);
-}
-function stopSettingsFaceCam(){if(settingsFaceStream){settingsFaceStream.getTracks().forEach(t=>t.stop());settingsFaceStream=null;} if(_settingsFaceAutoTimer){clearInterval(_settingsFaceAutoTimer);_settingsFaceAutoTimer=null;}}
 function closeSettingsFaceLock(){
   stopSettingsFaceCam();
   if(settingsBioStream){settingsBioStream.getTracks().forEach(t=>t.stop());settingsBioStream=null;}
   document.getElementById('settingsFaceLock').style.display='none';
   _pendingPwRole=null;_settingsBioCallback=null;
 }
-async function captureSettingsFace(){
+
+async function _settingsFaceLiveLoop(storedFace){
   const vid=document.getElementById('settingsFaceVideo');
-  if(!settingsFaceStream){stopSettingsFaceCam();document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);return;}
+  if(!settingsFaceStream||vid.readyState<2){_settingsFaceRafId=requestAnimationFrame(()=>_settingsFaceLiveLoop(storedFace));return;}
   const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
   const ctx=canvas.getContext('2d');
   ctx.save();ctx.translate(200,0);ctx.scale(-1,1);ctx.drawImage(vid,0,0,200,200);ctx.restore();
   const capturedData=canvas.toDataURL('image/jpeg',0.6);
-  stopSettingsFaceCam();
-  document.getElementById('settingsFacePreview').src=capturedData;
-  document.getElementById('settingsFacePreview').style.display='block';
-  document.getElementById('settingsFaceViewport').style.display='none';
-  document.getElementById('settingsFaceCaptureBtn').style.display='none';
-  document.getElementById('settingsFaceStatus').innerText='ভেরিফাই হচ্ছে...';
-  document.getElementById('settingsFaceStatus').className='face-status info';
-  // role অনুযায়ী সঠিক Firebase path পড়ি
-  const facePath=_pendingPwRole==='ceo'?'fh/ceoFace':_pendingPwRole==='settings'?'fh/settingsFace':'fh/adminFace';
-  const storedFace=await fbGet(facePath);
-  if(!storedFace){
-    document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা নেই — অনুমোদিত';
-    document.getElementById('settingsFaceStatus').className='face-status ok';
-    setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},1000);return;
-  }
-  // পুরনো embedding (raw JPEG নয়) থাকলে bypass করি
-  if(!storedFace.startsWith('data:image')){
-    document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা আপগ্রেড প্রয়োজন — অনুমোদিত';
-    document.getElementById('settingsFaceStatus').className='face-status ok';
-    setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},1000);return;
-  }
   const sim=await compareFacesAdmin(storedFace,capturedData);
+  const vp=document.getElementById('settingsFaceViewport');
   if(sim>0.52){
-    document.getElementById('settingsFaceStatus').innerText='✓ ফেস ম্যাচ ('+Math.round(sim*100)+'%) — অনুমোদিত';
+    _settingsFaceMatchStreak++;
+    if(vp){vp.style.border='3px solid var(--success)';vp.style.boxShadow='0 0 30px rgba(26,158,92,.5)';}
+    document.getElementById('settingsFaceStatus').innerText='✓ পরিচয় মিলছে — নিশ্চিত হচ্ছে...';
     document.getElementById('settingsFaceStatus').className='face-status ok';
-    setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},1000);
-  }else{
-    document.getElementById('settingsFaceStatus').innerText='✗ ফেস মিলছে না — অ্যাক্সেস অস্বীকৃত';
+    if(_settingsFaceMatchStreak>=_SETTINGS_FACE_MATCH_NEEDED){
+      stopSettingsFaceCam();
+      document.getElementById('settingsFaceStatus').innerText='✓ পরিচয় নিশ্চিত! — প্রবেশ করছেন...';
+      document.getElementById('settingsFaceCaptureBtn').style.display='none';
+      setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},700);
+      return;
+    }
+  } else {
+    _settingsFaceMatchStreak=0;
+    if(vp){vp.style.border='3px solid var(--danger)';vp.style.boxShadow='0 0 30px rgba(220,53,69,.4)';}
+    document.getElementById('settingsFaceStatus').innerText='✗ পরিচয় মেলেনি — আবার চেষ্টা করুন';
     document.getElementById('settingsFaceStatus').className='face-status err';
-    setTimeout(()=>{
-      document.getElementById('settingsFacePreview').style.display='none';
-      document.getElementById('settingsFaceViewport').style.display='block';
-      document.getElementById('settingsFaceCaptureBtn').style.display='block';
-      document.getElementById('settingsFaceCaptureBtn').innerHTML='<i class="fas fa-camera"></i> আবার চেষ্টা';
-      document.getElementById('settingsFaceCaptureBtn').onclick=captureSettingsFace;
-      document.getElementById('settingsFaceStatus').innerText='পুনরায় ক্যামেরায় মুখ রাখুন';
-      document.getElementById('settingsFaceStatus').className='face-status info';
-      startSettingsFaceCam();
-    },2000);
+    await new Promise(r=>setTimeout(r,800));
+    if(!settingsFaceStream) return;
+    if(vp){vp.style.border='3px solid var(--amber)';vp.style.boxShadow='0 0 28px rgba(212,146,42,.3)';}
+    document.getElementById('settingsFaceStatus').innerText='মুখ বৃত্তে রাখুন...';
+    document.getElementById('settingsFaceStatus').className='face-status info';
   }
+  _settingsFaceRafId=requestAnimationFrame(()=>_settingsFaceLiveLoop(storedFace));
+}
+
+async function startSettingsFaceCam(){
+  _settingsFaceMatchStreak=0;
+  try{
+    settingsFaceStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:300,height:300},audio:false});
+    const vid=document.getElementById('settingsFaceVideo');
+    vid.srcObject=settingsFaceStream;
+    vid.onloadedmetadata=async ()=>{
+      vid.play();
+      document.getElementById('settingsFaceCaptureBtn').style.display='none';
+      document.getElementById('settingsFaceStatus').innerText='মুখ বৃত্তে রাখুন...';
+      document.getElementById('settingsFaceStatus').className='face-status info';
+      const facePath=_pendingPwRole==='ceo'?'fh/ceoFace':_pendingPwRole==='settings'?'fh/settingsFace':'fh/adminFace';
+      const storedFace=await fbGet(facePath);
+      if(!storedFace){
+        document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা নেই — অনুমোদিত';
+        document.getElementById('settingsFaceStatus').className='face-status ok';
+        setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},1000);
+        stopSettingsFaceCam(); return;
+      }
+      if(!storedFace.startsWith('data:image')){
+        document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা আপগ্রেড প্রয়োজন — অনুমোদিত';
+        document.getElementById('settingsFaceStatus').className='face-status ok';
+        setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);},1000);
+        stopSettingsFaceCam(); return;
+      }
+      _settingsFaceLiveLoop(storedFace);
+    };
+  }catch(e){
+    document.getElementById('settingsFaceStatus').innerText='ক্যামেরা পাওয়া যায়নি — সরাসরি পাসওয়ার্ড পরিবর্তন করুন';
+    document.getElementById('settingsFaceStatus').className='face-status warn';
+    const btn=document.getElementById('settingsFaceCaptureBtn');
+    btn.innerHTML='<i class="fas fa-key"></i> এগিয়ে যান';btn.disabled=false;btn.style.display='block';
+    btn.onclick=()=>{stopSettingsFaceCam();document.getElementById('settingsFaceLock').style.display='none';changePassword(_pendingPwRole);};
+  }
+}
+
+async function captureSettingsFace(){
+  // live loop চলছে — manual trigger দরকার নেই
 }
 function toggleFieldPw(id,btn){
   const inp=document.getElementById(id);
@@ -2428,101 +2418,88 @@ function openSettingsBiometric(callback){
   document.getElementById('settingsFaceSubtitle').innerText='Settings প্রবেশের জন্য বায়োমেট্রিক যাচাই';
   document.getElementById('settingsFaceStatus').innerText='ক্যামেরা চালু হচ্ছে...';
   document.getElementById('settingsFaceStatus').className='face-status info';
-  document.getElementById('settingsFaceCaptureBtn').disabled=true;
+  document.getElementById('settingsFaceCaptureBtn').style.display='none';
   document.getElementById('settingsFacePreview').style.display='none';
   document.getElementById('settingsFaceViewport').style.display='block';
-  document.getElementById('settingsFaceCaptureBtn').style.display='block';
-  document.getElementById('settingsFaceCaptureBtn').innerHTML='<i class="fas fa-camera"></i> ভেরিফাই করুন';
-  document.getElementById('settingsFaceCaptureBtn').onclick=captureSettingsBio;
   document.getElementById('settingsFaceLock').style.display='flex';
   startSettingsBioCam();
 }
-let _settingsBioAutoTimer = null;
+let _settingsBioAutoTimer=null, _settingsBioRafId=null, _settingsBioMatchStreak=0;
+const _SETTINGS_BIO_MATCH_NEEDED=3;
+
+function stopSettingsBioCam(){
+  if(_settingsBioRafId){cancelAnimationFrame(_settingsBioRafId);_settingsBioRafId=null;}
+  if(settingsBioStream){settingsBioStream.getTracks().forEach(t=>t.stop());settingsBioStream=null;}
+  if(_settingsBioAutoTimer){clearInterval(_settingsBioAutoTimer);_settingsBioAutoTimer=null;}
+}
+
+async function _settingsBioLiveLoop(storedFace){
+  const vid=document.getElementById('settingsFaceVideo');
+  if(!settingsBioStream||vid.readyState<2){_settingsBioRafId=requestAnimationFrame(()=>_settingsBioLiveLoop(storedFace));return;}
+  const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
+  const ctx=canvas.getContext('2d');
+  ctx.save();ctx.translate(200,0);ctx.scale(-1,1);ctx.drawImage(vid,0,0,200,200);ctx.restore();
+  const capturedData=canvas.toDataURL('image/jpeg',0.6);
+  const sim=await compareFacesAdmin(storedFace,capturedData);
+  const vp=document.getElementById('settingsFaceViewport');
+  if(sim>0.52){
+    _settingsBioMatchStreak++;
+    if(vp){vp.style.border='3px solid var(--success)';vp.style.boxShadow='0 0 30px rgba(26,158,92,.5)';}
+    document.getElementById('settingsFaceStatus').innerText='✓ পরিচয় মিলছে — নিশ্চিত হচ্ছে...';
+    document.getElementById('settingsFaceStatus').className='face-status ok';
+    if(_settingsBioMatchStreak>=_SETTINGS_BIO_MATCH_NEEDED){
+      stopSettingsBioCam();
+      document.getElementById('settingsFaceStatus').innerText='✓ পরিচয় নিশ্চিত! — প্রবেশ করছেন...';
+      document.getElementById('settingsFaceCaptureBtn').style.display='none';
+      setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();},700);
+      return;
+    }
+  } else {
+    _settingsBioMatchStreak=0;
+    if(vp){vp.style.border='3px solid var(--danger)';vp.style.boxShadow='0 0 30px rgba(220,53,69,.4)';}
+    document.getElementById('settingsFaceStatus').innerText='✗ পরিচয় মেলেনি — আবার চেষ্টা করুন';
+    document.getElementById('settingsFaceStatus').className='face-status err';
+    await new Promise(r=>setTimeout(r,800));
+    if(!settingsBioStream) return;
+    if(vp){vp.style.border='3px solid var(--amber)';vp.style.boxShadow='0 0 28px rgba(212,146,42,.3)';}
+    document.getElementById('settingsFaceStatus').innerText='মুখ বৃত্তে রাখুন...';
+    document.getElementById('settingsFaceStatus').className='face-status info';
+  }
+  _settingsBioRafId=requestAnimationFrame(()=>_settingsBioLiveLoop(storedFace));
+}
 
 async function startSettingsBioCam(){
+  _settingsBioMatchStreak=0;
   try{
     settingsBioStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:300,height:300},audio:false});
     const vid=document.getElementById('settingsFaceVideo');
     vid.srcObject=settingsBioStream;
-    vid.onloadedmetadata=()=>{vid.play();
-      document.getElementById('settingsFaceCaptureBtn').disabled=false;
-      // ── AUTO FACE VERIFY: 3-second countdown ──
-      _settingsBioAutoCountdown(3);
+    vid.onloadedmetadata=async ()=>{
+      vid.play();
+      document.getElementById('settingsFaceCaptureBtn').style.display='none';
+      document.getElementById('settingsFaceStatus').innerText='মুখ বৃত্তে রাখুন...';
+      document.getElementById('settingsFaceStatus').className='face-status info';
+      let storedFace=await fbGet('fh/settingsFace');
+      if(!storedFace) storedFace=await fbGet('fh/adminFace');
+      if(!storedFace){
+        document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা নেই — অনুমোদিত';
+        document.getElementById('settingsFaceStatus').className='face-status ok';
+        setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();},1000);
+        stopSettingsBioCam(); return;
+      }
+      _settingsBioLiveLoop(storedFace);
     };
   }catch(e){
     document.getElementById('settingsFaceStatus').innerText='ক্যামেরা নেই — সরাসরি প্রবেশ করুন';
     document.getElementById('settingsFaceStatus').className='face-status warn';
     const btn=document.getElementById('settingsFaceCaptureBtn');
-    btn.innerHTML='<i class="fas fa-sign-in-alt"></i> এগিয়ে যান';btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-sign-in-alt"></i> এগিয়ে যান';btn.disabled=false;btn.style.display='block';
     btn.onclick=()=>{stopSettingsBioCam();document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();};
   }
 }
 
-function _settingsBioAutoCountdown(sec){
-  if(_settingsBioAutoTimer) clearInterval(_settingsBioAutoTimer);
-  let remaining = sec;
-  const btn = document.getElementById('settingsFaceCaptureBtn');
-  document.getElementById('settingsFaceStatus').innerText=`✓ মুখ ফ্রেমের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`;
-  document.getElementById('settingsFaceStatus').className='face-status ok';
-  if(btn) btn.innerHTML=`<i class="fas fa-camera"></i> এখনই স্ক্যান (${remaining}s)`;
-  _settingsBioAutoTimer = setInterval(()=>{
-    remaining--;
-    if(remaining <= 0){
-      clearInterval(_settingsBioAutoTimer); _settingsBioAutoTimer=null;
-      if(btn){ btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> স্ক্যান হচ্ছে...'; btn.disabled=true; }
-      document.getElementById('settingsFaceStatus').innerText='⏱ স্বয়ংক্রিয় ফেস স্ক্যান চলছে...';
-      document.getElementById('settingsFaceStatus').className='face-status info';
-      captureSettingsBio();
-    } else {
-      document.getElementById('settingsFaceStatus').innerText=`✓ মুখ ফ্রেমের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`;
-      if(btn) btn.innerHTML=`<i class="fas fa-camera"></i> এখনই স্ক্যান (${remaining}s)`;
-    }
-  }, 1000);
-}
-function stopSettingsBioCam(){if(settingsBioStream){settingsBioStream.getTracks().forEach(t=>t.stop());settingsBioStream=null;} if(_settingsBioAutoTimer){clearInterval(_settingsBioAutoTimer);_settingsBioAutoTimer=null;}}
 async function captureSettingsBio(){
-  if(_settingsBioAutoTimer){ clearInterval(_settingsBioAutoTimer); _settingsBioAutoTimer=null; }
-  const vid=document.getElementById('settingsFaceVideo');
-  if(!settingsBioStream){stopSettingsBioCam();document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();return;}
-  const canvas=document.createElement('canvas');canvas.width=200;canvas.height=200;
-  const ctx=canvas.getContext('2d');
-  ctx.save();ctx.translate(200,0);ctx.scale(-1,1);ctx.drawImage(vid,0,0,200,200);ctx.restore();
-  const capturedData=canvas.toDataURL('image/jpeg',0.6);
-  stopSettingsBioCam();
-  document.getElementById('settingsFacePreview').src=capturedData;
-  document.getElementById('settingsFacePreview').style.display='block';
-  document.getElementById('settingsFaceViewport').style.display='none';
-  document.getElementById('settingsFaceCaptureBtn').style.display='none';
-  document.getElementById('settingsFaceStatus').innerText='ভেরিফাই হচ্ছে...';
-  document.getElementById('settingsFaceStatus').className='face-status info';
-  // Settings এর নিজস্ব face পড়ো — adminFace নয়
-  let storedFace=await fbGet('fh/settingsFace');
-  // Fallback: settingsFace না থাকলে adminFace দিয়ে যাচাই
-  if(!storedFace) storedFace=await fbGet('fh/adminFace');
-  if(!storedFace){
-    document.getElementById('settingsFaceStatus').innerText='✓ ফেস ডেটা নেই — অনুমোদিত';
-    document.getElementById('settingsFaceStatus').className='face-status ok';
-    setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();},1000);return;
-  }
-  const sim=await compareFacesAdmin(storedFace,capturedData);
-  if(sim>0.52){
-    document.getElementById('settingsFaceStatus').innerText='✓ ফেস ম্যাচ ('+Math.round(sim*100)+'%)';
-    document.getElementById('settingsFaceStatus').className='face-status ok';
-    setTimeout(()=>{document.getElementById('settingsFaceLock').style.display='none';if(_settingsBioCallback)_settingsBioCallback();},1000);
-  }else{
-    document.getElementById('settingsFaceStatus').innerText='✗ ফেস মিলছে না — অ্যাক্সেস অস্বীকৃত';
-    document.getElementById('settingsFaceStatus').className='face-status err';
-    setTimeout(()=>{
-      document.getElementById('settingsFacePreview').style.display='none';
-      document.getElementById('settingsFaceViewport').style.display='block';
-      document.getElementById('settingsFaceCaptureBtn').style.display='block';
-      document.getElementById('settingsFaceCaptureBtn').innerHTML='<i class="fas fa-camera"></i> আবার চেষ্টা';
-      document.getElementById('settingsFaceCaptureBtn').onclick=captureSettingsBio;
-      document.getElementById('settingsFaceStatus').innerText='পুনরায় ক্যামেরায় মুখ রাখুন';
-      document.getElementById('settingsFaceStatus').className='face-status info';
-      startSettingsBioCam();
-    },2000);
-  }
+  // live loop চলছে — manual trigger দরকার নেই
 }
 
 /* ── CHANGE PASSWORD — Full Security Form (Full Name + Username + Password + Face + Fingerprint) ── */
@@ -3203,12 +3180,14 @@ function openFaceModal(mode, title, sub, callback){
   // Reset preview/viewport
   document.getElementById('facePreviewImg').style.display='none';
   document.getElementById('facePreviewImg').src='';
-  document.getElementById('faceViewport').style.display='block';
+  document.getElementById('faceVideo').style.display='';
+  const guide=document.getElementById('faceGuide'); if(guide) guide.style.display='';
+  const vp=document.getElementById('faceViewport');
+  vp.style.border='3px solid var(--amber)';
+  vp.style.boxShadow='0 0 30px rgba(212,146,42,.3)';
   // Reset gallery input
   const gi=document.getElementById('faceGalleryInput');
   if(gi) gi.value='';
-  const gpa=document.getElementById('galleryPickArea');
-  if(gpa){ gpa.style.borderColor='rgba(212,146,42,.5)'; gpa.innerHTML=`<input type="file" id="faceGalleryInput" accept="image/*" style="display:none" onchange="galleryPickAndProcess(this)"><i class="fas fa-images" style="font-size:28px;color:rgba(212,146,42,.6);margin-bottom:8px"></i><span style="font-size:11px;color:rgba(255,255,255,.4);text-align:center;padding:0 16px">ট্যাপ করে গ্যালারি থেকে ছবি বাছুন</span>`; gpa.onclick=()=>document.getElementById('faceGalleryInput').click(); }
   // Default to camera tab
   switchFaceTab('cam');
   // Stop any lingering stream before starting fresh
@@ -3265,11 +3244,21 @@ function galleryPickAndProcess(input){
       const w=img.width*scale, h=img.height*scale;
       ctx.drawImage(img,(200-w)/2,(200-h)/2,w,h);
       capturedFaceData=canvas.toDataURL('image/jpeg',0.75);
-      // Show preview
+      // Show preview inside the gallery viewport circle
+      const galVp=document.getElementById('faceGalleryViewport');
+      const galPrev=document.getElementById('facePreviewImgGal') || document.getElementById('facePreviewImg');
+      // Use facePreviewImg inside galViewport — place it there
       const prev=document.getElementById('facePreviewImg');
       prev.src=capturedFaceData; prev.style.display='block';
-      // Show preview over gallery area
+      // Switch from gallery section to cam section showing only preview
       document.getElementById('faceGallerySection').style.display='none';
+      document.getElementById('faceCamSection').style.display='block';
+      document.getElementById('faceVideo').style.display='none';
+      const guide=document.getElementById('faceGuide'); if(guide) guide.style.display='none';
+      // Green border
+      const vp=document.getElementById('faceViewport');
+      vp.style.border='3px solid var(--success)';
+      vp.style.boxShadow='0 0 30px rgba(26,158,92,.4)';
       document.getElementById('faceStatus').innerText='✓ ছবি নির্বাচন হয়েছে — নিশ্চিত করুন';
       document.getElementById('faceStatus').className='face-status ok';
       // Show confirm button
@@ -3318,9 +3307,14 @@ function closeFaceModal(){
   btn.innerHTML='<i class="fas fa-camera"></i> ছবি তুলুন';
   btn.onclick=captureAndProcess;
   btn.style.display='block';
+  // Reset viewport back to camera state
+  const vp=document.getElementById("faceViewport");
+  vp.style.border='3px solid var(--amber)';
+  vp.style.boxShadow='0 0 30px rgba(212,146,42,.3)';
   document.getElementById("facePreviewImg").style.display="none";
   document.getElementById("facePreviewImg").src="";
-  document.getElementById("faceViewport").style.display="block";
+  document.getElementById("faceVideo").style.display='';
+  const guide=document.getElementById('faceGuide'); if(guide) guide.style.display='';
   // Reset tabs
   const camSec=document.getElementById('faceCamSection');
   const galSec=document.getElementById('faceGallerySection');
@@ -3340,12 +3334,15 @@ function captureAndProcess(){
   ctx.drawImage(vid,0,0,200,200);
   ctx.restore();
   capturedFaceData=canvas.toDataURL('image/jpeg',0.6);
-  // Show preview
+  // Show preview INSIDE the same viewport circle
   const prev=document.getElementById('facePreviewImg');
-  prev.src=capturedFaceData;prev.style.display='block';
-  document.getElementById('faceViewport').style.display='none';
-  document.getElementById('faceCamSection').style.display='none';
-  document.getElementById('faceGallerySection').style.display='none';
+  prev.src=capturedFaceData; prev.style.display='block';
+  // Hide video, guide; show preview in place
+  document.getElementById('faceVideo').style.display='none';
+  const guide=document.getElementById('faceGuide'); if(guide) guide.style.display='none';
+  // Change border to green to indicate captured
+  document.getElementById('faceViewport').style.border='3px solid var(--success)';
+  document.getElementById('faceViewport').style.boxShadow='0 0 30px rgba(26,158,92,.4)';
   document.getElementById('faceStatus').innerText='ছবি ধারণ করা হয়েছে!';
   document.getElementById('faceStatus').className='face-status ok';
   document.getElementById('faceCaptureBtn').innerHTML='<i class="fas fa-check"></i> নিশ্চিত করুন';
@@ -3363,9 +3360,14 @@ function confirmFaceCapture(){
   btn.innerHTML='<i class="fas fa-camera"></i> ছবি তুলুন';
   btn.onclick=captureAndProcess;
   btn.style.display='block';
+  // Reset viewport
+  const vp=document.getElementById("faceViewport");
+  vp.style.border='3px solid var(--amber)';
+  vp.style.boxShadow='0 0 30px rgba(212,146,42,.3)';
   document.getElementById("facePreviewImg").style.display="none";
   document.getElementById("facePreviewImg").src="";
-  document.getElementById("faceViewport").style.display="block";
+  document.getElementById("faceVideo").style.display='';
+  const guide=document.getElementById('faceGuide'); if(guide) guide.style.display='';
   const camSec=document.getElementById('faceCamSection');
   const galSec=document.getElementById('faceGallerySection');
   if(camSec) camSec.style.display='block';
@@ -3853,16 +3855,65 @@ const FACE_ENGINE = {
     }catch(e){ return null; }
   },
 
-  /* Extract embedding from an HTMLImageElement — returns Float32Array or null */
+  /* Extract embedding from an HTMLImageElement — returns Float32Array or null.
+     Strategy: use FaceLandmarker to crop the face region first (removes background
+     lighting/environment variance), then embed only that cropped region.
+     Falls back to full-image embed if landmarker is unavailable or detects nothing. */
   getEmbedding(imgEl){
     if(!this._embedder) return null;
     try{
-      const result = this._embedder.embed(imgEl);
+      // ── Step 1: attempt face-crop via FaceLandmarker ──────────────────────
+      let sourceEl = imgEl; // default: full image (fallback)
+
+      if(this._landmarker){
+        const det = this._landmarker.detect(imgEl);
+        if(det && det.faceLandmarks && det.faceLandmarks.length > 0){
+          const lm = det.faceLandmarks[0];
+
+          // ── Step 2: compute normalised bounding box from 468 landmarks ──
+          let minX = 1, maxX = 0, minY = 1, maxY = 0;
+          for(const pt of lm){
+            if(pt.x < minX) minX = pt.x;
+            if(pt.x > maxX) maxX = pt.x;
+            if(pt.y < minY) minY = pt.y;
+            if(pt.y > maxY) maxY = pt.y;
+          }
+
+          // ── Step 3: convert to pixel coords; add 25 px margin on each side ──
+          const W = imgEl.videoWidth  || imgEl.naturalWidth  || imgEl.width  || 200;
+          const H = imgEl.videoHeight || imgEl.naturalHeight || imgEl.height || 200;
+          const PAD = 25;
+          const sx = Math.max(0,           minX * W - PAD);
+          const sy = Math.max(0,           minY * H - PAD);
+          const sw = Math.min(W - sx, (maxX - minX) * W + PAD * 2);
+          const sh = Math.min(H - sy, (maxY - minY) * H + PAD * 2);
+
+          // ── Step 4: crop onto a 160×160 off-screen canvas (background excluded) ──
+          const crop = document.createElement('canvas');
+          crop.width  = 160;
+          crop.height = 160;
+          const ctx = crop.getContext('2d');
+
+          // Neutral grey background so the embedder never sees camera/room colours
+          ctx.fillStyle = '#808080';
+          ctx.fillRect(0, 0, 160, 160);
+          ctx.drawImage(imgEl, sx, sy, sw, sh, 0, 0, 160, 160);
+
+          sourceEl = crop; // embed the cropped face, not the full frame
+        }
+        // if landmarker finds no face → sourceEl stays as imgEl (full-image fallback)
+      }
+
+      // ── Step 5: generate embedding from chosen source ─────────────────────
+      const result = this._embedder.embed(sourceEl);
       if(!result || !result.embeddings || result.embeddings.length === 0) return null;
+
+      // ── Step 6: L2-normalise so cosineDistance works correctly ────────────
       const raw = result.embeddings[0].floatEmbedding;
-      let norm = 0; for(const v of raw) norm += v*v; norm = Math.sqrt(norm)||1;
-      return new Float32Array(raw.map(v => v/norm));
-    }catch(e){ return null; }
+      let norm = 0; for(const v of raw) norm += v * v; norm = Math.sqrt(norm) || 1;
+      return new Float32Array(raw.map(v => v / norm));
+
+    }catch(e){ console.error('FACE_ENGINE.getEmbedding:', e); return null; }
   },
 
   /* Cosine distance between two unit-normalized Float32Arrays (0=identical, 1=unrelated) */
@@ -3968,14 +4019,23 @@ function _pixelCompareFaces(img1b64, img2b64){
 }
 
 /* ══════════════════════════════════════════════════
-   AWS FACE LOCK — LOGIN GATE
-   Shown after successful 3-step login
-   Uses AWS Rekognition to verify the admin's face
+   FACE LOCK — REAL-TIME CONTINUOUS VERIFICATION
+   Live video থেকে প্রতি frame-এ detect + compare।
+   ছবি তোলার দরকার নেই — match হলে সাথে সাথে login।
 ══════════════════════════════════════════════════ */
-let _awsFaceLockStream = null;
+let _awsFaceLockStream  = null;
+let _awsLiveRafId       = null;
+let _awsVerifying       = false;   // একটা async verify চলাকালীন নতুন verify block
+let _awsMatchStreak     = 0;       // পর পর কতটা frame match হয়েছে
+let _awsNoFaceStreak    = 0;
+const _AWS_MATCH_NEEDED = 2;       // এতগুলো consecutive match হলে login
+const _AWS_FRAME_MS     = 200;     // প্রতি কত ms-এ একটা frame process হবে
+let _awsLastFrameTime   = 0;
+let _awsStoredFace      = null;    // Firebase থেকে একবারেই load করা face
+let _awsIsFirstLogin    = false;   // প্রথমবার login — face register করতে হবে
+let _awsRegistering     = false;   // registration চলছে
 
 function showAwsFaceLock(){
-  // Build the modal dynamically if not present
   let modal = document.getElementById('awsFaceLockModal');
   if(!modal){
     modal = document.createElement('div');
@@ -3984,80 +4044,184 @@ function showAwsFaceLock(){
     modal.innerHTML = `
       <div style="background:var(--ink2);border:1px solid rgba(212,146,42,.3);border-radius:24px;padding:30px 24px;width:min(370px,calc(100vw - 24px));text-align:center;animation:popIn .4s cubic-bezier(.22,.68,0,1.2)">
         <div style="width:56px;height:56px;background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--ink);box-shadow:0 8px 24px rgba(212,146,42,.4)">
-          <i class="fas fa-camera"></i>
+          <i class="fas fa-user-shield"></i>
         </div>
         <div style="font-family:'Lora',serif;font-size:18px;color:#fff;margin-bottom:4px">Face Security Lock</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px">Neural Face Engine দ্বারা স্বয়ংক্রিয় পরিচয় যাচাই</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:6px">Neural Face Engine দ্বারা রিয়েল-টাইম পরিচয় যাচাই</div>
         <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00e5ff;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:16px">
-          <i class="fas fa-bolt" style="font-size:11px"></i> AUTO FACE VERIFY ACTIVE
+          <i class="fas fa-bolt" style="font-size:11px"></i> LIVE AUTO VERIFY
         </div>
-        <div style="position:relative;width:200px;height:200px;margin:0 auto 14px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);box-shadow:0 0 30px rgba(212,146,42,.35)">
-          <video id="awsFaceVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+        <!-- Viewport -->
+        <div style="position:relative;width:200px;height:200px;margin:0 auto 10px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);box-shadow:0 0 30px rgba(212,146,42,.35);transition:border .3s,box-shadow .3s" id="awsFaceViewport">
+          <video id="awsFaceVideo" autoplay playsinline muted style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video>
           <canvas id="awsFaceCanvas" style="display:none"></canvas>
-          <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(212,146,42,.5);animation:faceGuide 2s ease-in-out infinite"></div>
+          <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(212,146,42,.5);animation:faceGuide 2s ease-in-out infinite" id="awsFaceGuide"></div>
         </div>
-        <img id="awsFacePreview" style="width:200px;height:200px;border-radius:50%;object-fit:cover;border:3px solid var(--success);margin:0 auto 14px;display:none" alt="">
+        <!-- Match progress bar hidden for security -->
+        <div style="display:none">
+          <div id="awsMatchBar"></div>
+        </div>
         <div id="awsFaceStatus" style="font-size:12px;font-weight:600;color:var(--amber2);min-height:20px;margin-bottom:16px">ক্যামেরা চালু হচ্ছে...</div>
-        <div style="display:flex;gap:8px">
-          <button onclick="awsFaceLockCancel()" style="flex:1;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">বাতিল করুন</button>
-          <button id="awsFaceCaptureBtn" onclick="awsFaceLockCapture()" disabled style="flex:2;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:linear-gradient(135deg,var(--amber),var(--amber2));color:var(--ink)">
-            <i class="fas fa-camera"></i> ছবি তুলুন
-          </button>
-        </div>
+        <button onclick="awsFaceLockCancel()" style="width:100%;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">বাতিল করুন</button>
         <div style="font-size:9px;color:rgba(255,255,255,.18);margin-top:12px">
-          <i class="fas fa-brain"></i> Neural models — MediaPipe FaceLandmarker + ImageEmbedder (MobileNet v3)
+          <i class="fas fa-brain"></i> MediaPipe FaceLandmarker + ImageEmbedder (MobileNet v3)
         </div>
       </div>`;
     document.body.appendChild(modal);
   }
+  // Reset state
+  _awsVerifying = false; _awsMatchStreak = 0; _awsNoFaceStreak = 0;
+  _awsStoredFace = null; _awsIsFirstLogin = false; _awsRegistering = false;
+  _awsSetMatchBar(0);
   modal.style.display = 'flex';
-  _startAwsFaceCam();
+  _startAwsFaceLock();
 }
 
-let _awsAutoTimer = null;
+async function _startAwsFaceLock(){
+  // ── 1. Load stored face from Firebase first ──────────────────────────────
+  _awsSetStatus('Firebase থেকে ফেস লোড হচ্ছে...', 'var(--amber2)');
+  try {
+    const sf = await fbGet('fh/adminFace');
+    if(!sf){
+      _awsIsFirstLogin = true; // No face stored — first login, will register
+    } else if(!sf.startsWith('data:image')){
+      // Old embedding format — wipe and re-register
+      _awsIsFirstLogin = true;
+      await fbSet('fh/adminFace', null);
+    } else {
+      _awsStoredFace = sf;
+    }
+  } catch(e){ _awsIsFirstLogin = true; }
 
-async function _startAwsFaceCam(){
+  // ── 2. Start camera ──────────────────────────────────────────────────────
   try{
-    _awsFaceLockStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:300,height:300},audio:false});
+    _awsFaceLockStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user', width:{ideal:320}, height:{ideal:320}}, audio:false
+    });
     const vid = document.getElementById('awsFaceVideo');
     vid.srcObject = _awsFaceLockStream;
-    vid.onloadedmetadata = ()=>{
-      vid.play();
-      document.getElementById('awsFaceCaptureBtn').disabled = false;
-      // ── AUTO FACE VERIFY: 3-second countdown then auto-capture ──
-      _awsAutoCountdown(3);
-    };
+    await new Promise(res=>{ vid.onloadedmetadata=()=>{ vid.play(); res(); }; });
+
+    if(_awsIsFirstLogin){
+      _awsSetStatus('✓ ক্যামেরা চালু — প্রথম প্রবেশ: মুখ নিবন্ধন হবে', 'var(--amber2)');
+    } else {
+      _awsSetStatus('✓ ক্যামেরা চালু — মুখ বৃত্তে রাখুন', 'var(--amber2)');
+    }
+
+    // ── 3. Start real-time verification loop ──────────────────────────────
+    _awsLiveLoop();
+
   } catch(e){
     _awsSetStatus('ক্যামেরা পাওয়া যায়নি — সরাসরি প্রবেশ', 'var(--warn)');
-    const btn = document.getElementById('awsFaceCaptureBtn');
-    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> এগিয়ে যান';
-    btn.disabled = false;
-    btn.onclick = ()=>{ _stopAwsFaceCam(); _completeAwsFaceLock(); };
+    setTimeout(()=>{ _stopAwsFaceCam(); _completeAwsFaceLock(); }, 1800);
   }
 }
 
-/* ── Auto-countdown then auto-capture ── */
-function _awsAutoCountdown(sec){
-  if(_awsAutoTimer) clearInterval(_awsAutoTimer);
-  let remaining = sec;
-  const btn = document.getElementById('awsFaceCaptureBtn');
-  _awsSetStatus(`✓ মুখ বৃত্তের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`, 'var(--amber2)');
-  if(btn) btn.innerHTML = `<i class="fas fa-camera"></i> এখনই স্ক্যান (${remaining}s)`;
-  _awsAutoTimer = setInterval(()=>{
-    remaining--;
-    if(remaining <= 0){
-      clearInterval(_awsAutoTimer); _awsAutoTimer = null;
-      if(btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> স্ক্যান হচ্ছে...';
-      _awsSetStatus('⏱ স্বয়ংক্রিয় ফেস স্ক্যান চলছে...', 'var(--amber2)');
-      awsFaceLockCapture();
-    } else {
-      _awsSetStatus(`✓ মুখ বৃত্তের মধ্যে রাখুন — ${remaining}s এ স্বয়ংক্রিয় স্ক্যান`, 'var(--amber2)');
-      if(btn) btn.innerHTML = `<i class="fas fa-camera"></i> এখনই স্ক্যান (${remaining}s)`;
+/* ── Core real-time loop — runs every _AWS_FRAME_MS via rAF ── */
+function _awsLiveLoop(timestamp){
+  // Schedule next frame immediately
+  _awsLiveRafId = requestAnimationFrame(_awsLiveLoop);
+
+  const now = performance.now();
+  if(now - _awsLastFrameTime < _AWS_FRAME_MS) return; // throttle
+  _awsLastFrameTime = now;
+
+  if(_awsVerifying || _awsRegistering) return; // async op চলছে, skip
+  if(!_awsFaceLockStream) return;
+
+  const vid = document.getElementById('awsFaceVideo');
+  const canvas = document.getElementById('awsFaceCanvas');
+  if(!vid || !canvas || vid.readyState < 2) return;
+
+  // Capture current frame (no mirror needed — CSS scaleX(-1) handles display)
+  canvas.width = 200; canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  ctx.save(); ctx.translate(200,0); ctx.scale(-1,1);
+  ctx.drawImage(vid, 0, 0, 200, 200);
+  ctx.restore();
+
+  const frameData = canvas.toDataURL('image/jpeg', 0.7);
+  _awsVerifying = true;
+
+  _awsProcessFrame(frameData).then(()=>{ _awsVerifying = false; }).catch(()=>{ _awsVerifying = false; });
+}
+
+async function _awsProcessFrame(frameData){
+  if(!FACE_ENGINE.ready){
+    _awsSetStatus('⏳ Neural Engine লোড হচ্ছে...', 'var(--amber2)');
+    return;
+  }
+
+  const imgEl = await _loadImageEl(frameData);
+  if(!imgEl) return;
+
+  // ── Step 1: Detect face in frame ─────────────────────────────────────────
+  const faceConf = FACE_ENGINE.detectFace(imgEl);
+
+  if(faceConf === null){
+    _awsNoFaceStreak++;
+    _awsMatchStreak = 0;
+    _awsSetMatchBar(0);
+    const vp = document.getElementById('awsFaceViewport');
+    if(vp){ vp.style.border='3px solid var(--amber)'; vp.style.boxShadow='0 0 30px rgba(212,146,42,.35)'; }
+    if(_awsNoFaceStreak > 3){
+      _awsSetStatus('⚠ মুখ পাওয়া যাচ্ছে না — বৃত্তে মুখ রাখুন', 'var(--warn)');
     }
-  }, 1000);
+    return;
+  }
+
+  _awsNoFaceStreak = 0;
+
+  // ── Step 2: First login — register face ──────────────────────────────────
+  if(_awsIsFirstLogin){
+    if(_awsRegistering) return;
+    _awsRegistering = true;
+    _awsSetStatus('✓ মুখ সনাক্ত — নিবন্ধন হচ্ছে...', 'var(--success)');
+    const vp = document.getElementById('awsFaceViewport');
+    if(vp){ vp.style.border='3px solid var(--success)'; vp.style.boxShadow='0 0 30px rgba(26,158,92,.4)'; }
+    _awsSetMatchBar(100);
+    try { await fbSet('fh/adminFace', frameData); } catch(e){}
+    _awsSetStatus('✓ ফেস নিবন্ধন সম্পন্ন! প্রবেশ করছেন...', 'var(--success)');
+    setTimeout(()=>{ _stopAwsFaceCam(); _completeAwsFaceLock(); }, 900);
+    return;
+  }
+
+  // ── Step 3: Compare live frame against stored face ───────────────────────
+  const similarity = await compareFacesAdmin(_awsStoredFace, frameData);
+  const threshold  = 0.52;
+  const pct        = Math.round(similarity * 100);
+  const barPct     = Math.min(100, Math.round((similarity / threshold) * 100));
+  _awsSetMatchBar(barPct);
+
+  const vp = document.getElementById('awsFaceViewport');
+
+  if(similarity >= threshold){
+    _awsMatchStreak++;
+    if(vp){ vp.style.border='3px solid var(--success)'; vp.style.boxShadow='0 0 30px rgba(26,158,92,.5)'; }
+    _awsSetStatus(`✓ পরিচয় মিলছে — নিশ্চিত হচ্ছে...`, 'var(--success)');
+
+    if(_awsMatchStreak >= _AWS_MATCH_NEEDED){
+      // ── SUCCESS ──
+      cancelAnimationFrame(_awsLiveRafId); _awsLiveRafId = null;
+      _awsSetStatus(`✓ পরিচয় নিশ্চিত! — প্রবেশ করছেন...`, 'var(--success)');
+      _awsSetMatchBar(100);
+      setTimeout(()=>{ _stopAwsFaceCam(); _completeAwsFaceLock(); }, 700);
+    }
+  } else {
+    _awsMatchStreak = 0;
+    if(vp){ vp.style.border='3px solid var(--danger)'; vp.style.boxShadow='0 0 30px rgba(220,53,69,.4)'; }
+    _awsSetStatus(`✗ পরিচয় মেলেনি — আবার চেষ্টা করুন`, 'var(--danger)');
+    // Brief red flash then reset
+    setTimeout(()=>{
+      if(!_awsFaceLockStream) return;
+      if(vp){ vp.style.border='3px solid var(--amber)'; vp.style.boxShadow='0 0 30px rgba(212,146,42,.35)'; }
+      _awsSetStatus('মুখ বৃত্তে রাখুন...', 'var(--amber2)');
+    }, 800);
+  }
 }
 
 function _stopAwsFaceCam(){
+  if(_awsLiveRafId){ cancelAnimationFrame(_awsLiveRafId); _awsLiveRafId=null; }
   if(_awsFaceLockStream){ _awsFaceLockStream.getTracks().forEach(t=>t.stop()); _awsFaceLockStream=null; }
 }
 
@@ -4066,91 +4230,18 @@ function _awsSetStatus(msg, color){
   if(el){ el.innerText=msg; el.style.color=color||'var(--amber2)'; }
 }
 
-async function awsFaceLockCapture(){
-  if(_awsAutoTimer){ clearInterval(_awsAutoTimer); _awsAutoTimer=null; }
-  const vid = document.getElementById('awsFaceVideo');
-  const canvas = document.getElementById('awsFaceCanvas');
-  if(!_awsFaceLockStream){ _completeAwsFaceLock(); return; }
-
-  canvas.width=200; canvas.height=200;
-  const ctx = canvas.getContext('2d');
-  ctx.save(); ctx.translate(200,0); ctx.scale(-1,1);
-  ctx.drawImage(vid,0,0,200,200); ctx.restore();
-  const capturedData = canvas.toDataURL('image/jpeg', 0.7);
-
-  _stopAwsFaceCam();
-  document.getElementById('awsFacePreview').src = capturedData;
-  document.getElementById('awsFacePreview').style.display = 'block';
-  document.getElementById('awsFaceVideo').style.display = 'none';
-  document.getElementById('awsFaceCaptureBtn').style.display = 'none';
-  _awsSetStatus('Neural Engine যাচাই করা হচ্ছে...', 'var(--amber2)');
-
-  // First check: does a face exist in the image?
-  const detectResult = await awsDetectFace(capturedData);
-
-  if(!detectResult){
-    // Models not yet ready
-    _awsSetStatus('⚠ Neural Engine লোড হয়নি — অ্যাক্সেস দেওয়া হচ্ছে', 'var(--warn)');
-    setTimeout(()=>{ _completeAwsFaceLock(); }, 1500);
-    return;
-  }
-
-  if(!detectResult.FaceDetails || detectResult.FaceDetails.length === 0){
-    _awsSetStatus('✗ মুখমণ্ডল সনাক্ত হয়নি — আবার চেষ্টা করুন', 'var(--danger)');
-    setTimeout(()=>{ _retryAwsFaceLock(capturedData); }, 2000);
-    return;
-  }
-
-  const confidence = detectResult.FaceDetails[0].Confidence || 0;
-  _awsSetStatus('মুখ সনাক্ত ('+confidence.toFixed(1)+'%) — Neural পরিচয় যাচাই হচ্ছে...', 'var(--amber2)');
-
-  // Compare against stored admin face
-  const storedFace = await fbGet('fh/adminFace');
-  if(!storedFace){
-    // No stored face — register this face as admin face (raw JPEG)
-    _awsSetStatus('✓ প্রথম প্রবেশ — ফেস নিবন্ধন হচ্ছে...', 'var(--success)');
-    await fbSet('fh/adminFace', capturedData);
-    setTimeout(()=>{ _completeAwsFaceLock(); }, 1200);
-    return;
-  }
-
-  // পুরনো ফরম্যাট (embedding) থাকলে replace করে raw JPEG সেভ করি
-  if(!storedFace.startsWith('data:image')){
-    _awsSetStatus('✓ ফেস ডাটা আপগ্রেড হচ্ছে...', 'var(--warn)');
-    await fbSet('fh/adminFace', capturedData);
-    setTimeout(()=>{ _completeAwsFaceLock(); }, 1200);
-    return;
-  }
-
-  const similarity = await compareFacesAdmin(storedFace, capturedData);
-  const threshold = 0.52; // MediaPipe cosine: ~0.52+ = confident match
-
-  if(similarity >= threshold){
-    _awsSetStatus('✓ পরিচয় নিশ্চিত! ('+(Math.round(similarity*100))+'% মিল)', 'var(--success)');
-    setTimeout(()=>{ _completeAwsFaceLock(); }, 1000);
-  } else {
-    _awsSetStatus('✗ পরিচয় মেলেনি ('+(Math.round(similarity*100))+'%) — অ্যাক্সেস অস্বীকৃত', 'var(--danger)');
-    setTimeout(()=>{ _retryAwsFaceLock(); }, 2000);
-  }
-}
-
-function _retryAwsFaceLock(){
-  if(_awsAutoTimer){ clearInterval(_awsAutoTimer); _awsAutoTimer=null; }
-  document.getElementById('awsFacePreview').style.display = 'none';
-  document.getElementById('awsFaceVideo').style.display = 'block';
-  const btn = document.getElementById('awsFaceCaptureBtn');
-  btn.innerHTML = '<i class="fas fa-camera"></i> আবার চেষ্টা করুন';
-  btn.style.display = 'block';
-  btn.onclick = awsFaceLockCapture;
-  _awsSetStatus('মুখ বৃত্তের মধ্যে রাখুন', 'var(--amber2)');
-  _startAwsFaceCam();
+function _awsSetMatchBar(pct){
+  const bar = document.getElementById('awsMatchBar');
+  if(!bar) return;
+  bar.style.width = pct + '%';
+  bar.style.background = pct >= 100 ? 'var(--success)' : pct >= 60 ? 'var(--warn)' : 'var(--danger)';
+  if(pct === 0) bar.style.background = 'var(--success)';
 }
 
 function awsFaceLockCancel(){
-  if(_awsAutoTimer){ clearInterval(_awsAutoTimer); _awsAutoTimer=null; }
   _stopAwsFaceCam();
-  document.getElementById('awsFaceLockModal').style.display = 'none';
-  // Logout — don't grant access
+  const modal = document.getElementById('awsFaceLockModal');
+  if(modal) modal.style.display = 'none';
   doLogout();
 }
 
@@ -4158,7 +4249,6 @@ function _completeAwsFaceLock(){
   _stopAwsFaceCam();
   const modal = document.getElementById('awsFaceLockModal');
   if(modal) modal.style.display = 'none';
-  // Now actually enter the dashboard
   _enterDashboard();
 }
 
