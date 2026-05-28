@@ -989,10 +989,22 @@ body { padding-bottom: var(--bottom-nav-h); }
   position: absolute; inset: 0;
   width: 100%; height: 100%;
   background: #000;
+  overflow: hidden;
 }
+/* iframe একটু বড় করে উপরে সরানো হয়েছে যাতে YouTube-এর info bar ফ্রেমের বাইরে চলে যায় */
 .yt-fs-frame-wrap iframe {
-  width: 100%; height: 100%;
+  position: absolute;
+  top: -62px;        /* YouTube top bar টা উপরে কেটে ফেলা */
+  left: 0;
+  width: 100%;
+  height: calc(100% + 62px);
   border: none; display: block;
+}
+/* উপরে কালো mask — back button-এর পেছনে */
+.yt-fs-top-mask {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 62px; background: #000;
+  z-index: 5; pointer-events: none;
 }
 
 /* YouTube badge লুকানো হয়েছে */
@@ -6032,6 +6044,7 @@ window.addEventListener('popstate', function(){
     <i class="fas fa-chevron-down"></i>
   </button>
   <div class="yt-fs-frame-wrap">
+    <div class="yt-fs-top-mask"></div>
     <iframe id="ytFsFrame" src="" frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowfullscreen></iframe>
