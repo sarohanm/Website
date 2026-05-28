@@ -2563,16 +2563,18 @@ function openDetail(idx){
         ? (() => {
             const ytIdM = _ytSrc.match(/\/embed\/([\w-]{11})/);
             const ytThumb = ytIdM ? `https://img.youtube.com/vi/${ytIdM[1]}/hqdefault.jpg` : '';
-            return `<div class="dg-slide dg-yt-slide" style="cursor:default;background:#000;position:relative;" data-yt-src="${_ytSrc}">
+            return `<div class="dg-slide dg-yt-slide" style="cursor:default;background:#000;position:relative;overflow:hidden;" data-yt-src="${_ytSrc}">
               <div class="dg-yt-thumb" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;" onclick="dgPlayYt(this)">
                 ${ytThumb ? `<img src="${ytThumb}" style="width:100%;height:100%;object-fit:cover;opacity:.85;display:block;pointer-events:none;">` : '<div style="width:100%;height:100%;background:#111;pointer-events:none;"></div>'}
                 <div style="position:absolute;width:68px;height:68px;border-radius:50%;background:rgba(220,0,0,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,.6);pointer-events:none;">
                   <i class="fas fa-play" style="color:#fff;font-size:24px;margin-left:6px;pointer-events:none;"></i>
                 </div>
               </div>
-              <iframe id="dgYtFrame" width="100%" height="100%" src="" frameborder="0"
+              <iframe id="dgYtFrame" width="100%" src="" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen style="display:none;border-radius:0;"></iframe>
+                allowfullscreen
+                style="display:none;position:absolute;top:-62px;left:0;width:100%;height:calc(100% + 62px);border:none;"></iframe>
+              <div style="position:absolute;top:0;left:0;right:0;height:62px;background:#000;z-index:3;pointer-events:none;display:none;" class="dg-yt-mask"></div>
             </div>`;
           })()
         : '';
@@ -5910,6 +5912,8 @@ function dgGoTo(idx){
       if(fr){ fr.src = ''; fr.style.display = 'none'; }
       const thumb = s.querySelector('.dg-yt-thumb');
       if(thumb) thumb.style.display = 'flex';
+      const mask = s.querySelector('.dg-yt-mask');
+      if(mask) mask.style.display = 'none';
     }
   });
   dots.forEach((d, i) => d.classList.toggle('active', i === idx));
@@ -5929,8 +5933,18 @@ function dgPlayYt(thumbEl){
   const ytSrc = slide.dataset.ytSrc || '';
   if(!ytSrc) return;
 
-  // Fullscreen player খোলো
-  openYtFs(ytSrc);
+  // Gallery-র ভেতরেই iframe-এ play করো (fullscreen player বন্ধ)
+  const fr    = slide.querySelector('#dgYtFrame');
+  const thumb = slide.querySelector('.dg-yt-thumb');
+  if(!fr) return;
+
+  const sep = ytSrc.includes('?') ? '&' : '?';
+  fr.src = ytSrc + sep + 'autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&fs=1';
+  fr.style.display = 'block';
+  if(thumb) thumb.style.display = 'none';
+  // top mask দেখাও
+  const mask = slide.querySelector('.dg-yt-mask');
+  if(mask) mask.style.display = 'block';
 }
 
 function openYtFs(ytSrc, title){
