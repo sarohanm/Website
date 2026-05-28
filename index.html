@@ -103,6 +103,17 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
 .dv-table td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--ink)}
 .dv-table tr:last-child td{border-bottom:none}
 .dv-empty{text-align:center;color:var(--muted);font-size:13px;padding:20px}
+/* WB ADD MODAL */
+.wb-add-popup{padding:0!important}
+.swal-no-actions{display:none!important}
+.wb-add-popup .swal2-html-container{margin:0!important;padding:0!important;overflow-y:auto;max-height:90vh}
+.wb-add-popup .swal2-close{top:10px!important;right:10px!important;z-index:10}
+/* TC detail popup — extra whitespace সরানো */
+.swal-tc-detail-popup{padding:0!important;overflow:hidden!important}
+.swal-tc-detail-html{margin:0!important;padding:0!important;overflow:hidden!important}
+
+.wb-add-popup .swal2-actions{margin:0!important;padding:8px 14px 12px!important;gap:7px!important}
+.wb-add-popup .swal2-confirm,.wb-add-popup .swal2-cancel{border-radius:8px!important;font-size:12px!important;font-weight:700!important;padding:9px 0!important;flex:1!important;margin:0!important}
 /* SHELL */
 #mainUI{display:none;width:100vw;overflow-x:hidden}
 .accent-bar{display:none}
@@ -638,7 +649,6 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
         <span style="width:32px;height:32px;background:rgba(26,158,92,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-shield-halved" style="color:var(--success);font-size:14px"></i></span>
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--ink)">ট্রাস্ট ব্যাজ নিয়ম সম্পাদনা</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:1px">দ্রুত ডেলিভারি · ৭ দিন রিটার্ন · মানের গ্যারান্টি · সাপোর্ট ২৪/৭</div>
         </div>
         <button onclick="saveTrustRules()" style="margin-left:auto;padding:8px 14px;background:linear-gradient(135deg,#1a9e5c,#2ecc71);border:none;border-radius:10px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;white-space:nowrap"><i class="fas fa-save"></i> সেভ</button>
       </div>
@@ -657,8 +667,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
             <i class="fas fa-chevron-down" id="trustDeliveryChev" style="color:var(--muted);font-size:10px;transition:.2s"></i>
           </div>
           <div id="trustAccordion-delivery" style="display:none;padding:10px 13px 13px;border-top:1px solid #d1fae5;background:#fff">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">নোট (হলুদ বাক্স)</div>
-            <input id="tr_delivery_note" class="fc" style="font-size:12px;margin-bottom:10px;background:var(--parchment);border-radius:9px;padding:8px 11px" placeholder="📦 ঢাকার মধ্যে ১-২ কার্যদিবসে ডেলিভারি হয়।">
+            <input type="hidden" id="tr_delivery_note" value="📦 ঢাকার মধ্যে সাধারণত ১-২ কার্যদিবসে ডেলিভারি হয়। ঈদ বা বিশেষ উৎসবে সময় কিছুটা বাড়তে পারে।">
             <div id="tr_delivery_rules"></div>
             <button onclick="addTrustRule('delivery')" style="width:100%;margin-top:7px;padding:7px;border:1.5px dashed #a7f3d0;border-radius:9px;background:rgba(26,158,92,.04);color:var(--success);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-plus"></i> নিয়ম যোগ করুন</button>
           </div>
@@ -675,8 +684,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
             <i class="fas fa-chevron-down" id="trustReturnChev" style="color:var(--muted);font-size:10px;transition:.2s"></i>
           </div>
           <div id="trustAccordion-return" style="display:none;padding:10px 13px 13px;border-top:1px solid #dbeafe;background:#fff">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">নোট (হলুদ বাক্স)</div>
-            <input id="tr_return_note" class="fc" style="font-size:12px;margin-bottom:10px;background:var(--parchment);border-radius:9px;padding:8px 11px" placeholder="⚠️ পণ্যটি অব্যবহৃত ও আসল প্যাকেজিংসহ থাকতে হবে।">
+            <input type="hidden" id="tr_return_note" value="⚠️ রিটার্ন করতে হলে পণ্যটি অবশ্যই অব্যবহৃত ও আসল প্যাকেজিংসহ থাকতে হবে।">
             <div id="tr_return_rules"></div>
             <button onclick="addTrustRule('return')" style="width:100%;margin-top:7px;padding:7px;border:1.5px dashed #bfdbfe;border-radius:9px;background:rgba(59,130,246,.04);color:#3b82f6;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-plus"></i> নিয়ম যোগ করুন</button>
           </div>
@@ -693,8 +701,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
             <i class="fas fa-chevron-down" id="trustGuaranteeChev" style="color:var(--muted);font-size:10px;transition:.2s"></i>
           </div>
           <div id="trustAccordion-guarantee" style="display:none;padding:10px 13px 13px;border-top:1px solid #fde68a;background:#fff">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">নোট (হলুদ বাক্স)</div>
-            <input id="tr_guarantee_note" class="fc" style="font-size:12px;margin-bottom:10px;background:var(--parchment);border-radius:9px;padding:8px 11px" placeholder="✅ যাচাইকৃত সরবরাহকারীদের কাছ থেকে পণ্য সংগ্রহ করা হয়।">
+            <input type="hidden" id="tr_guarantee_note" value="✅ আমরা শুধুমাত্র যাচাইকৃত সরবরাহকারীদের কাছ থেকে পণ্য সংগ্রহ করি।">
             <div id="tr_guarantee_rules"></div>
             <button onclick="addTrustRule('guarantee')" style="width:100%;margin-top:7px;padding:7px;border:1.5px dashed #fde68a;border-radius:9px;background:rgba(212,146,42,.04);color:var(--amber);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-plus"></i> নিয়ম যোগ করুন</button>
           </div>
@@ -711,8 +718,7 @@ button,input,select,textarea{touch-action:manipulation;font-family:'IBM Plex San
             <i class="fas fa-chevron-down" id="trustSupportChev" style="color:var(--muted);font-size:10px;transition:.2s"></i>
           </div>
           <div id="trustAccordion-support" style="display:none;padding:10px 13px 13px;border-top:1px solid #e9d5ff;background:#fff">
-            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">নোট (হলুদ বাক্স)</div>
-            <input id="tr_support_note" class="fc" style="font-size:12px;margin-bottom:10px;background:var(--parchment);border-radius:9px;padding:8px 11px" placeholder="📞 জরুরি সমস্যায় WhatsApp-এ যোগাযোগ করুন।">
+            <input type="hidden" id="tr_support_note" value="📞 জরুরি সমস্যায় WhatsApp-এ যোগাযোগ করুন — দ্রুত সাড়া পাবেন।">
             <div id="tr_support_rules"></div>
             <button onclick="addTrustRule('support')" style="width:100%;margin-top:7px;padding:7px;border:1.5px dashed #e9d5ff;border-radius:9px;background:rgba(124,58,237,.04);color:#7c3aed;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit"><i class="fas fa-plus"></i> নিয়ম যোগ করুন</button>
           </div>
@@ -5267,75 +5273,60 @@ function wbSwitchTab(tab){
 /* ── ট্রাস্ট রুলস লোড ── */
 const TRUST_KEYS = ['delivery','return','guarantee','support'];
 const TRUST_DEFAULTS = {
-  delivery: {
-    note:'📦 ঢাকার মধ্যে সাধারণত ১-২ কার্যদিবসে ডেলিভারি হয়। ঈদ বা বিশেষ উৎসবে সময় কিছুটা বাড়তে পারে।',
-    rules:[
-      {title:'ঢাকার মধ্যে ডেলিভারি', text:'ঢাকা সিটির যেকোনো এলাকায় অর্ডার দিলে সাধারণত ১–২ কার্যদিবসের মধ্যে পণ্য পৌঁছে দেওয়া হয়।'},
-      {title:'ঢাকার বাইরে ডেলিভারি', text:'ঢাকার বাইরে সারাদেশে ২–৪ কার্যদিবসের মধ্যে কুরিয়ারের মাধ্যমে ডেলিভারি দেওয়া হয়।'},
-      {title:'ডেলিভারি চার্জ', text:'ঢাকার মধ্যে ৬০ টাকা। ঢাকার বাইরে ১২০ টাকা। নির্দিষ্ট পরিমাণের বেশি অর্ডারে বিনামূল্যে ডেলিভারি।'},
-      {title:'অর্ডার ট্র্যাকিং', text:'অর্ডার দেওয়ার পর আপনার নম্বরে SMS ও WhatsApp-এ ট্র্যাকিং আপডেট পাঠানো হবে।'},
-      {title:'ডেলিভারি সমস্যা', text:'নির্ধারিত সময়ে পণ্য না পেলে আমাদের সাপোর্টে যোগাযোগ করুন। ২৪ ঘণ্টার মধ্যে সমাধান দেওয়া হবে।'},
-    ]
-  },
-  return: {
-    note:'⚠️ রিটার্ন করতে হলে পণ্যটি অবশ্যই অব্যবহৃত ও আসল প্যাকেজিংসহ থাকতে হবে।',
-    rules:[
-      {title:'রিটার্নের সময়সীমা', text:'পণ্য পাওয়ার ৭ দিনের মধ্যে রিটার্নের আবেদন করতে হবে।'},
-      {title:'রিটার্নযোগ্য পণ্য', text:'পণ্যটি অব্যবহৃত, ট্যাগ/লেবেলসহ এবং আসল প্যাকেজিংয়ে থাকলে রিটার্ন করা যাবে।'},
-      {title:'রিটার্নযোগ্য নয়', text:'ব্যবহৃত পণ্য, খাদ্যদ্রব্য, ইনার ওয়্যার, কাস্টম অর্ডার ও সেলের পণ্য রিটার্ন হবে না।'},
-      {title:'রিটার্ন প্রক্রিয়া', text:'প্রথমে সাপোর্টে যোগাযোগ করুন। অনুমোদনের পর পণ্য পাঠালে রিফান্ড বা বিনিময় দেওয়া হবে।'},
-      {title:'রিফান্ড পদ্ধতি', text:'অনুমোদিত রিটার্নে ৫–৭ কার্যদিবসের মধ্যে bKash/নগদ বা ব্যাংক ট্রান্সফারে রিফান্ড দেওয়া হবে।'},
-    ]
-  },
-  guarantee: {
-    note:'✅ আমরা শুধুমাত্র যাচাইকৃত সরবরাহকারীদের কাছ থেকে পণ্য সংগ্রহ করি।',
-    rules:[
-      {title:'মানসম্পন্ন পণ্য', text:'সকল পণ্য বিক্রির আগে গুণমান যাচাই করা হয়। নকল বা নিম্নমানের পণ্য বিক্রি করা হয় না।'},
-      {title:'পণ্যের বিবরণ', text:'প্রতিটি পণ্যের ছবি ও বিবরণ সঠিকভাবে উল্লেখ করা হয়। মিল না থাকলে বিনামূল্যে বিনিময়।'},
-      {title:'ত্রুটিপূর্ণ পণ্য', text:'ত্রুটিপূর্ণ বা ক্ষতিগ্রস্ত পণ্য পেলে ছবিসহ রিপোর্ট করুন — বিনামূল্যে নতুন পণ্য পাঠানো হবে।'},
-      {title:'মেয়াদোত্তীর্ণ নয়', text:'খাদ্যদ্রব্য ও প্রসাধনী পণ্যের মেয়াদ যাচাই করে বিক্রি করা হয়।'},
-      {title:'সন্তুষ্টি না হলে', text:'কোনো কারণে সন্তুষ্ট না হলে আমাদের জানান। সর্বোচ্চ চেষ্টা করব সমস্যার সমাধান করতে।'},
-    ]
-  },
-  support: {
-    note:'📞 জরুরি সমস্যায় WhatsApp-এ যোগাযোগ করুন — দ্রুত সাড়া পাবেন।',
-    rules:[
-      {title:'২৪/৭ যোগাযোগ', text:'দিনরাত ২৪ ঘণ্টা, সপ্তাহে ৭ দিন WhatsApp বা চ্যাটের মাধ্যমে যোগাযোগ করা যাবে।'},
-      {title:'সাড়া দেওয়ার সময়', text:'সাধারণত ১৫–৩০ মিনিটের মধ্যে সাড়া দেওয়া হয়। ব্যস্ত সময়ে সর্বোচ্চ ২ ঘণ্টা লাগতে পারে।'},
-      {title:'সমস্যা সমাধান', text:'অর্ডার ট্র্যাকিং, পেমেন্ট সমস্যা, পণ্যের তথ্য, রিটার্ন — সবধরনের সহায়তা পাওয়া যাবে।'},
-      {title:'ভদ্র ও সম্মানজনক সেবা', text:'আমাদের সাপোর্ট টিম সর্বদা বিনম্র ও সহযোগিতামূলক আচরণ করবে।'},
-      {title:'অভিযোগ ও মতামত', text:'যেকোনো অভিযোগ বা পরামর্শ জানাতে পারেন। আপনার মতামত আমাদের উন্নত করে।'},
-    ]
-  }
+  delivery:  { note:'', rules:[] },
+  return:    { note:'', rules:[] },
+  guarantee: { note:'', rules:[] },
+  support:   { note:'', rules:[] }
 };
 
-async function loadTrustRules(){
-  let data = null;
-  try { data = await fbGet('fh/trustRules'); } catch(e){}
-  const src = data || TRUST_DEFAULTS;
-  TRUST_KEYS.forEach(key => {
-    const d = src[key] || TRUST_DEFAULTS[key];
-    const noteEl = document.getElementById('tr_'+key+'_note');
-    if(noteEl) noteEl.value = d.note || '';
-    renderTrustRules(key, d.rules || []);
-  });
+const _trustEditingIdx = {};
+function trustRuleToggleEdit(key, idx){
+  if(_trustEditingIdx[key] === idx){
+    delete _trustEditingIdx[key];
+    renderTrustRules(key, _trustCache[key].rules);
+  } else {
+    _trustEditingIdx[key] = idx;
+    renderTrustRules(key, _trustCache[key].rules, idx);
+  }
 }
 
-function renderTrustRules(key, rules){
+function renderTrustRules(key, rules, editingIdx){
   const container = document.getElementById('tr_'+key+'_rules');
   if(!container) return;
   const subEl = document.getElementById('trust'+key.charAt(0).toUpperCase()+key.slice(1)+'Sub');
-  if(subEl) subEl.textContent = rules.length + 'টি নিয়ম';
-  container.innerHTML = rules.map((r,i) => `
-    <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px 11px;margin-bottom:7px;background:#fafafa">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+  const enabledCount = rules.filter(r => r.enabled !== false).length;
+  if(subEl) subEl.textContent = rules.length + 'টি নিয়ম · ' + enabledCount + 'টি সক্রিয়';
+  if(editingIdx === undefined) editingIdx = _trustEditingIdx[key];
+  container.innerHTML = rules.map((r,i) => {
+    const isEnabled = r.enabled !== false;
+    const isEditing = (editingIdx === i);
+    return `
+    <div style="border:1px solid ${isEditing ? 'rgba(212,146,42,.5)' : (isEnabled ? '#bbf7d0' : '#e5e7eb')};border-radius:10px;padding:10px 11px;margin-bottom:7px;background:${isEditing ? '#fffbf2' : (isEnabled ? '#f0fdf4' : '#fafafa')};transition:.2s;${isEditing ? 'box-shadow:0 0 0 2px rgba(212,146,42,.15)' : ''}">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:${isEditing || r.text ? '6px' : '0'}">
         <span style="width:20px;height:20px;background:#e5e7eb;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#6b7280;flex-shrink:0">${i+1}</span>
-        <input value="${esc(r.title||'')}" oninput="updateTrustRule('${key}',${i},'title',this.value)" placeholder="শিরোনাম" style="flex:1;border:none;background:transparent;font-size:12px;font-weight:700;color:var(--ink);outline:none;font-family:inherit">
-        <button onclick="removeTrustRule('${key}',${i})" style="width:22px;height:22px;border:none;background:rgba(220,53,69,.1);border-radius:6px;color:var(--danger);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-times"></i></button>
+        ${isEditing
+          ? `<input id="tr_edit_title_${key}_${i}" value="${esc(r.title||'')}" oninput="updateTrustRule('${key}',${i},'title',this.value)" placeholder="শিরোনাম" style="flex:1;border:none;border-bottom:1.5px solid var(--amber);background:transparent;font-size:12px;font-weight:700;color:var(--ink);outline:none;font-family:inherit;padding-bottom:2px">`
+          : `<span style="flex:1;font-size:12px;font-weight:700;color:${isEnabled ? 'var(--ink)' : '#bbb'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title||'—')}</span>`
+        }
+        <!-- এডিট কলম বাটন -->
+        <button onclick="trustRuleToggleEdit('${key}',${i})" title="${isEditing ? 'সম্পন্ন' : 'এডিট করুন'}" style="width:22px;height:22px;border:none;border-radius:6px;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;background:${isEditing ? 'rgba(212,146,42,.25)' : 'rgba(212,146,42,.1)'};color:var(--amber)"><i class="fas fa-${isEditing ? 'check' : 'pen'}"></i></button>
+        <!-- টিক চেকবক্স -->
+        <button onclick="toggleTrustRuleEnabled('${key}',${i})" title="${isEnabled ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন'}" style="width:22px;height:22px;border:none;border-radius:6px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;background:${isEnabled ? 'rgba(26,158,92,.15)' : 'rgba(0,0,0,.06)'};color:${isEnabled ? 'var(--success)' : '#aaa'}"><i class="fas fa-check"></i></button>
+        <!-- ক্রস বাটন -->
+        <button onclick="removeTrustRule('${key}',${i})" title="মুছুন" style="width:22px;height:22px;border:none;background:rgba(220,53,69,.1);border-radius:6px;color:var(--danger);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-times"></i></button>
       </div>
-      <textarea oninput="updateTrustRule('${key}',${i},'text',this.value)" placeholder="বিবরণ লিখুন..." style="width:100%;box-sizing:border-box;border:none;border-top:1px solid #f0f0f0;background:transparent;font-size:11px;color:var(--ink);resize:none;outline:none;font-family:inherit;line-height:1.6;padding-top:6px;min-height:44px">${esc(r.text||'')}</textarea>
+      ${isEditing
+        ? `<textarea id="tr_edit_text_${key}_${i}" oninput="updateTrustRule('${key}',${i},'text',this.value)" placeholder="বিবরণ লিখুন..." style="width:100%;box-sizing:border-box;border:none;border-top:1px solid #f0d89a;background:transparent;font-size:11px;color:var(--ink);resize:none;outline:none;font-family:inherit;line-height:1.6;padding-top:6px;min-height:44px">${esc(r.text||'')}</textarea>`
+        : (r.text ? `<div style="font-size:11px;color:${isEnabled ? '#555' : '#bbb'};line-height:1.6;padding-top:6px;border-top:1px solid #f0f0f0">${esc(r.text)}</div>` : '')
+      }
     </div>
-  `).join('');
+  `}).join('');
+  if(editingIdx !== undefined && editingIdx >= 0){
+    setTimeout(()=>{
+      const inp = document.getElementById('tr_edit_title_'+key+'_'+editingIdx);
+      if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    }, 50);
+  }
 }
 
 // In-memory cache while editing
@@ -5360,13 +5351,22 @@ function _syncCacheFromDOM(key){
   _trustCache[key].note = note;
 }
 
+let _trustLoaded = false;
 async function loadTrustRules(){
-  let data = null;
-  try { data = await fbGet('fh/trustRules'); } catch(e){}
-  const src = data || TRUST_DEFAULTS;
+  if(!_trustLoaded){
+    let data = null;
+    try { data = await fbGet('fh/trustRules'); } catch(e){}
+    const src = data || TRUST_DEFAULTS;
+    TRUST_KEYS.forEach(key => {
+      const d = src[key] || TRUST_DEFAULTS[key];
+      const rules = JSON.parse(JSON.stringify(d.rules||[]));
+      rules.forEach(r => { if(r.enabled === undefined) r.enabled = true; });
+      _trustCache[key] = { note: d.note||'', rules };
+    });
+    _trustLoaded = true;
+  }
   TRUST_KEYS.forEach(key => {
-    const d = src[key] || TRUST_DEFAULTS[key];
-    _trustCache[key] = { note: d.note||'', rules: JSON.parse(JSON.stringify(d.rules||[])) };
+    if(!_trustCache[key]) _trustCache[key] = { note:'', rules:[] };
     const noteEl = document.getElementById('tr_'+key+'_note');
     if(noteEl) noteEl.value = _trustCache[key].note;
     renderTrustRules(key, _trustCache[key].rules);
@@ -5379,18 +5379,60 @@ function updateTrustRule(key, idx, field, val){
   _trustCache[key].rules[idx][field] = val;
 }
 
+const _trustRuleDemoText = {
+  delivery: { title:'', text:'' },
+  return:   { title:'', text:'' },
+  guarantee:{ title:'', text:'' },
+  support:  { title:'', text:'' },
+};
+
 function addTrustRule(key){
   if(!_trustCache[key]) _trustCache[key]={note:'',rules:[]};
-  _trustCache[key].rules.push({title:'', text:''});
-  renderTrustRules(key, _trustCache[key].rules);
+  const demo = _trustRuleDemoText[key] || { title:'নতুন নিয়ম', text:'এখানে নিয়মের বিবরণ লিখুন।' };
+  _trustCache[key].rules.push({ title: '', text: '', enabled: true });
+  const newIdx = _trustCache[key].rules.length - 1;
+  _trustEditingIdx[key] = newIdx;
+  renderTrustRules(key, _trustCache[key].rules, newIdx);
   // open accordion
   const acc = document.getElementById('trustAccordion-'+key);
   if(acc) acc.style.display='block';
+  // নতুন নিয়মের title input-এ focus করুন
+  setTimeout(()=>{
+    const container = document.getElementById('tr_'+key+'_rules');
+    if(container){
+      const inputs = container.querySelectorAll('input');
+      const last = inputs[inputs.length-1];
+      if(last){ last.focus(); last.scrollIntoView({behavior:'smooth', block:'center'}); }
+    }
+  }, 100);
 }
 
-function removeTrustRule(key, idx){
+async function removeTrustRule(key, idx){
   if(!_trustCache[key]) return;
+  const rule = _trustCache[key].rules[idx];
+  const title = rule?.title || 'এই নিয়ম';
+  const result = await Swal.fire({
+    title: 'নিয়ম মুছবেন?',
+    html: `<span style="font-size:13px;color:#555">"<b>${title}</b>" — এই নিয়মটি মুছে যাবে।</span>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+    cancelButtonColor: '#8896ab',
+    confirmButtonText: '<i class="fas fa-trash-alt"></i> হ্যাঁ, মুছুন',
+    cancelButtonText: 'না, রাখুন',
+    reverseButtons: true
+  });
+  if(!result.isConfirmed) return;
   _trustCache[key].rules.splice(idx,1);
+  renderTrustRules(key, _trustCache[key].rules);
+  showToast('✓ নিয়ম মুছে ফেলা হয়েছে');
+}
+
+function toggleTrustRuleEnabled(key, idx){
+  if(!_trustCache[key] || !_trustCache[key].rules[idx]) return;
+  const cur = _trustCache[key].rules[idx].enabled;
+  // default is true (enabled), so if undefined treat as true
+  _trustCache[key].rules[idx].enabled = (cur === false) ? true : false;
   renderTrustRules(key, _trustCache[key].rules);
 }
 
@@ -5401,11 +5443,12 @@ function toggleTrustAccordion(key){
   const open = acc.style.display !== 'none';
   acc.style.display = open ? 'none' : 'block';
   if(chev) chev.style.transform = open ? '' : 'rotate(180deg)';
-  // sync note to cache when opening
+  // accordion খুললে note input-এ oninput সেট করি (একবার মাত্র)
   if(!open){
     const noteEl = document.getElementById('tr_'+key+'_note');
-    if(noteEl && _trustCache[key]) {
-      noteEl.addEventListener('input', ()=>{ _trustCache[key].note=noteEl.value; }, {once:false});
+    if(noteEl && _trustCache[key] && !noteEl._trustBound) {
+      noteEl._trustBound = true;
+      noteEl.addEventListener('input', ()=>{ if(_trustCache[key]) _trustCache[key].note = noteEl.value; });
     }
   }
 }
@@ -5420,9 +5463,11 @@ async function saveTrustRules(){
   TRUST_KEYS.forEach(key => { payload[key] = _trustCache[key] || TRUST_DEFAULTS[key]; });
   try {
     await fbSet('fh/trustRules', payload);
+    _trustLoaded = false; // পরের বার fresh লোড করবে
     showToast('✓ ট্রাস্ট নিয়ম সেভ হয়েছে!');
   } catch(e){
-    showToast('❌ সেভ করতে সমস্যা হয়েছে');
+    console.error('saveProduct error:', e);
+    showToast('❌ সেভ ব্যর্থ: ' + (e?.message||e?.code||'অজানা সমস্যা'));
   }
 }
 
@@ -5879,107 +5924,217 @@ function wbYoutubePreview(val){
   } else { wrap.style.display='none'; prev.innerHTML=''; }
 }
 
+/* ── পণ্যের নাম ডুপ্লিকেট চেক ── */
+function checkWbName(input){
+  const val = input.value.trim().toLowerCase();
+  if(!val){ input.style.borderColor='rgba(212,146,42,.18)'; input.style.color='#fff'; return; }
+  const isDup = Object.values(_wbAllProducts||{}).some(p => (p.name||'').trim().toLowerCase()===val);
+  if(isDup){
+    input.style.color='#dc3545';
+    input.style.borderColor='rgba(220,53,69,.5)';
+  } else {
+    input.style.color='#fff';
+    input.style.borderColor='rgba(212,146,42,.18)';
+  }
+}
+
+/* ── বারকোড ডুপ্লিকেট চেক ── */
+function checkWbBarcode(input){
+  const val = input.value.trim();
+  if(!val){ input.style.borderColor='rgba(212,146,42,.18)'; input.style.color='#fff'; return; }
+  const isDup = Object.values(_wbAllProducts||{}).some(p => (p.barcode||'').trim()===val);
+  if(isDup){
+    input.style.color='#dc3545';
+    input.style.borderColor='rgba(220,53,69,.5)';
+  } else {
+    input.style.color='#fff';
+    input.style.borderColor='rgba(212,146,42,.18)';
+  }
+}
+
+/* ── ক্রম নং ডুপ্লিকেট চেক ── */
+function checkWbSortOrder(input){
+  const val = parseInt(input.value);
+  if(!val){ input.style.borderColor='rgba(212,146,42,.18)'; input.style.color='rgba(255,255,255,.3)'; return; }
+  const prods = Object.values(_wbAllProducts||{});
+  const isDup = prods.some(p => parseInt(p.sortOrder)===val);
+  if(isDup){
+    // হলুদ দেখাও — duplicate কিন্তু save করলে বাকিরা shift হবে
+    input.style.color='#f0b84e';
+    input.style.borderColor='rgba(240,184,78,.6)';
+  } else {
+    input.style.color='#fff';
+    input.style.borderColor='rgba(26,158,92,.6)';
+  }
+}
+
 function openWbAddModal(){
   _wbAddImgBase64 = '';
   _wbAddImages = [];
+  const _iS = 'width:100%;padding:8px 11px;border:1.5px solid rgba(212,146,42,.18);border-radius:8px;font-size:12px;color:#fff;background:rgba(255,255,255,.06);outline:none;font-family:\'IBM Plex Sans\',sans-serif;transition:border-color .2s,background .2s';
+  const _lS = 'font-size:9px;font-weight:700;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.55px;display:flex;align-items:center;gap:4px;margin-bottom:4px';
   Swal.fire({
-    background:'#fff',
-    color:'#141820',
-    width:'min(460px,96vw)',
+    background:'#2a3245',
+    color:'#fff',
+    width:'min(360px,calc(100vw - 32px))',
+    padding:'0',
     showConfirmButton:false,
-    showCloseButton:true,
+    showCloseButton:false,
+    customClass:{popup:'wb-add-popup'},
+    didOpen: () => { _updateWbTCBadge(); },
     html:`
-      <div style="text-align:left;padding:4px 2px 0">
-        <div style="font-family:'Lora',serif;font-size:16px;font-weight:700;color:#141820;display:flex;align-items:center;gap:8px;margin-bottom:16px">
-          <span style="width:28px;height:28px;background:rgba(26,158,92,.13);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#1a9e5c;font-size:13px"><i class="fas fa-plus"></i></span>
-          ওয়েবসাইটে নতুন পণ্য যোগ
+      <div style="border:1px solid rgba(212,146,42,.32);border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px rgba(212,146,42,.1)">
+
+        <!-- হেডার (sticky style) -->
+        <div style="position:sticky;top:0;z-index:2;background:#2a3245;display:flex;align-items:center;justify-content:space-between;padding:12px 14px 10px;border-bottom:1px solid rgba(212,146,42,.12)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;background:linear-gradient(135deg,#d4922a,#f0b84e);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#141820;flex-shrink:0;box-shadow:0 3px 10px rgba(212,146,42,.35)">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div>
+              <div style="font-family:'Lora',serif;font-size:13px;color:#fff;line-height:1.2">নতুন পণ্য যোগ</div>
+              <div style="font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.4px;margin-top:1px">ওয়েবসাইটে পণ্য যুক্ত করুন</div>
+            </div>
+          </div>
+          <!-- T&C Active Badge -->
+          <button onclick="showWbTCInfo()" id="_wbTCBadge" title="সক্রিয় T&C নিয়ম দেখুন" style="display:flex;align-items:center;gap:4px;background:rgba(26,158,92,.13);border:1px solid rgba(26,158,92,.3);border-radius:8px;padding:0 9px;height:30px;cursor:pointer;transition:.18s;white-space:nowrap;flex-shrink:0">
+            <i class="fas fa-shield-halved" style="font-size:10px;color:#4ade80"></i>
+            <span id="_wbTCCount" style="font-size:10px;font-weight:700;color:#4ade80;letter-spacing:.2px">…</span>
+          </button>
         </div>
 
-        <div style="border:2px dashed #e2ddd5;border-radius:13px;padding:14px 12px;text-align:center;cursor:pointer;background:#f7f2ea;margin-bottom:13px;position:relative;overflow:hidden" onclick="document.getElementById('_wbFileInput').click()">
-          <input type="file" id="_wbFileInput" accept="image/*" multiple style="display:none" onchange="wbHandleMultiImages(this)">
-          <div id="_wbMultiPrevGrid" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:8px;justify-content:center"></div>
-          <div id="_wbImgHint"><i class="fas fa-images" style="font-size:22px;color:#d4922a;display:block;margin-bottom:5px"></i><p style="font-size:11px;color:#8896ab">একাধিক ছবি সিলেক্ট করুন (গ্যালারি থেকে)</p></div>
-        </div>
+        <!-- বডি -->
+        <div style="padding:12px 14px 14px;text-align:left">
 
-        <div style="margin-bottom:10px">
-          <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">বারকোড / কোড</label>
-          <div style="display:flex;gap:6px">
-            <input id="_wbBarcode" placeholder="কোড লিখুন বা স্ক্যান করুন" style="flex:1;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none;min-width:0">
-            <button onclick="startWbBarcodeScanner()" style="width:42px;height:42px;background:linear-gradient(135deg,#d4922a,#f0b84e);border:none;border-radius:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="স্ক্যান করুন">
-              <i class="fas fa-camera" style="color:#141820;font-size:14px"></i>
+          <!-- ছবি আপলোড -->
+          <div style="margin-bottom:8px">
+            <div style="border:1.5px dashed rgba(212,146,42,.3);border-radius:8px;padding:10px;text-align:center;cursor:pointer;background:rgba(212,146,42,.04);position:relative;overflow:hidden" onclick="document.getElementById('_wbFileInput').click()">
+              <input type="file" id="_wbFileInput" accept="image/*" multiple style="display:none" onchange="wbHandleMultiImages(this)">
+              <div id="_wbMultiPrevGrid" style="display:none;flex-wrap:wrap;gap:4px;margin-bottom:5px;justify-content:center"></div>
+              <div id="_wbImgHint" style="display:flex;align-items:center;justify-content:center;gap:6px">
+                <i class="fas fa-images" style="font-size:14px;color:#d4922a"></i>
+                <span style="font-size:10px;color:rgba(255,255,255,.38)">ছবি সিলেক্ট করুন</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- বারকোড -->
+          <div style="margin-bottom:8px">
+            <div style="${_lS}"><i class="fas fa-barcode" style="color:rgba(212,146,42,.7);font-size:9px"></i> বারকোড / কোড</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input id="_wbBarcode" placeholder="কোড লিখুন বা স্ক্যান করুন" style="${_iS};flex:1;min-width:0" oninput="checkWbBarcode(this)">
+              <button onclick="startWbBarcodeScanner()" style="flex-shrink:0;height:34px;padding:0 11px;border:none;border-radius:8px;background:linear-gradient(135deg,#d4922a,#f0b84e);color:#141820;font-size:10.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap">
+                <i class="fas fa-camera"></i>
+              </button>
+            </div>
+            <div id="_wbScannerWrap" style="display:none;margin-top:5px;border-radius:7px;overflow:hidden;border:1px solid rgba(212,146,42,.2)">
+              <div id="_wbScannerBox" style="width:100%;height:140px"></div>
+              <button onclick="stopWbBarcodeScanner()" style="width:100%;padding:5px;background:rgba(255,255,255,.05);border:none;border-top:1px solid rgba(212,146,42,.15);font-size:10px;color:rgba(255,255,255,.4);cursor:pointer;font-family:'IBM Plex Sans',sans-serif"><i class="fas fa-times"></i> স্ক্যানার বন্ধ</button>
+            </div>
+          </div>
+
+          <!-- পণ্যের নাম -->
+          <div style="margin-bottom:8px">
+            <div style="${_lS}"><i class="fas fa-tag" style="color:rgba(212,146,42,.7);font-size:9px"></i> পণ্যের নাম <span style="color:#dc3545;font-size:10px">*</span></div>
+            <input id="_wbName" placeholder="যেমন: গোলাপি শাড়ি" style="${_iS}" oninput="checkWbName(this)">
+          </div>
+
+          <!-- মূল্য + ছাড় + স্টক + ক্যাটাগরি — ৪ কলাম -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-bottom:8px">
+            <div>
+              <div style="${_lS}">মূল্য (৳) <span style="color:#dc3545;font-size:10px">*</span></div>
+              <input id="_wbPrice" type="number" placeholder="০" min="0" style="${_iS}">
+            </div>
+            <div>
+              <div style="${_lS}">ছাড় (৳)</div>
+              <input id="_wbDiscount" type="number" placeholder="০" min="0" style="${_iS}">
+            </div>
+            <div>
+              <div style="${_lS}">স্টক</div>
+              <input id="_wbStock" type="number" placeholder="০" min="0" style="${_iS}">
+            </div>
+            <div>
+              <div style="${_lS}">ক্রম নং</div>
+              <input id="_wbCat" type="number" placeholder="" min="1" step="1" style="${_iS}" oninput="checkWbSortOrder(this)">
+            </div>
+          </div>
+
+          <!-- সাইজ + কালার — ২ কলাম -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px">
+            <div>
+              <div style="${_lS}">সাইজ (কমা দিয়ে)</div>
+              <input id="_wbSizes" placeholder="S, M, L, XL" style="${_iS}">
+            </div>
+            <div>
+              <div style="${_lS}">কালার (কমা দিয়ে)</div>
+              <input id="_wbColors" placeholder="লাল, সাদা, নীল" style="${_iS}">
+            </div>
+          </div>
+
+          <!-- বিবরণ -->
+          <div style="margin-bottom:8px">
+            <div style="${_lS}"><i class="fas fa-align-left" style="color:rgba(212,146,42,.7);font-size:9px"></i> বিবরণ</div>
+            <textarea id="_wbDesc" placeholder="পণ্যের বিবরণ..." style="${_iS};min-height:40px;resize:vertical"></textarea>
+          </div>
+
+          <!-- YouTube -->
+          <div style="margin-bottom:12px">
+            <div style="${_lS}"><i class="fab fa-youtube" style="color:#dc3545;font-size:9px"></i> YouTube Embed</div>
+            <textarea id="_wbYoutube" placeholder='&lt;iframe src="https://www.youtube.com/embed/..."&gt;&lt;/iframe&gt;' style="${_iS};min-height:40px;resize:vertical;font-family:monospace;font-size:9px" oninput="wbYoutubePreview(this.value)"></textarea>
+            <div id="_wbYtPreviewWrap" style="display:none;margin-top:5px;border-radius:7px;overflow:hidden;border:1px solid rgba(212,146,42,.2);background:#000;aspect-ratio:16/9;position:relative">
+              <div id="_wbYtPreview" style="width:100%;height:100%"></div>
+              <button onclick="document.getElementById('_wbYoutube').value='';document.getElementById('_wbYtPreviewWrap').style.display='none'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:5px;padding:2px 6px;font-size:9px;cursor:pointer"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+
+          <!-- সেভ বাটন -->
+          <div style="display:flex;gap:7px">
+            <button onclick="Swal.close()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.07);color:rgba(255,255,255,.45);font-family:'IBM Plex Sans',sans-serif">বাতিল</button>
+            <button onclick="saveProductToWebsite()" style="flex:2;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#d4922a,#f0b84e);color:#141820;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'IBM Plex Sans',sans-serif;box-shadow:0 3px 12px rgba(212,146,42,.3)">
+              <i class="fas fa-save"></i> ওয়েবসাইটে সেভ করুন
             </button>
           </div>
-          <div id="_wbScannerWrap" style="display:none;margin-top:8px;border-radius:11px;overflow:hidden;border:1.5px solid #e2ddd5">
-            <div id="_wbScannerBox" style="width:100%;height:200px"></div>
-            <button onclick="stopWbBarcodeScanner()" style="width:100%;padding:8px;background:#f7f2ea;border:none;border-top:1px solid #e2ddd5;font-size:12px;color:#8896ab;cursor:pointer;font-family:'IBM Plex Sans',sans-serif"><i class="fas fa-times"></i> স্ক্যানার বন্ধ করুন</button>
-          </div>
-        </div>
 
-        <div style="margin-bottom:10px">
-          <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">পণ্যের নাম <span style="color:#dc3545">*</span></label>
-          <input id="_wbName" class="fc" placeholder="যেমন: গোলাপি শাড়ি" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
         </div>
-        <div style="margin-bottom:10px">
-          <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">বিবরণ</label>
-          <textarea id="_wbDesc" placeholder="পণ্যের বিস্তারিত বিবরণ..." style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none;min-height:60px;resize:vertical;font-family:'IBM Plex Sans',sans-serif"></textarea>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">মূল্য (৳) <span style="color:#dc3545">*</span></label>
-            <input id="_wbPrice" type="number" placeholder="০" min="0" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">ছাড়ের মূল্য (৳)</label>
-            <input id="_wbDiscount" type="number" placeholder="০" min="0" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">স্টক (পিস)</label>
-            <input id="_wbStock" type="number" placeholder="০" min="0" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">ক্যাটাগরি</label>
-            <input id="_wbCat" placeholder="যেমন: শাড়ি" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">সাইজ (কমা দিয়ে)</label>
-            <input id="_wbSizes" placeholder="S, M, L, XL" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">কালার (কমা দিয়ে)</label>
-            <input id="_wbColors" placeholder="লাল, সাদা, নীল" style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:13px;color:#141820;background:#f7f2ea;outline:none">
-          </div>
-        </div>
-
-        <div style="margin-bottom:10px">
-          <label style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px"><i class="fab fa-youtube" style="color:#dc3545"></i> YouTube ভিডিও (Embed কোড)</label>
-          <textarea id="_wbYoutube" placeholder='যেমন: &lt;iframe width="560" height="315" src="https://www.youtube.com/embed/XXXXX" ...&gt;&lt;/iframe&gt;' style="width:100%;padding:10px 13px;border:1.5px solid #e2ddd5;border-radius:11px;font-size:11px;color:#141820;background:#f7f2ea;outline:none;min-height:72px;resize:vertical;font-family:monospace" oninput="wbYoutubePreview(this.value)"></textarea>
-          <div id="_wbYtPreviewWrap" style="display:none;margin-top:8px;border-radius:11px;overflow:hidden;border:1.5px solid #e2ddd5;background:#000;aspect-ratio:16/9;position:relative">
-            <div id="_wbYtPreview" style="width:100%;height:100%"></div>
-            <button onclick="document.getElementById('_wbYoutube').value='';document.getElementById('_wbYtPreviewWrap').style.display='none'" style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer"><i class="fas fa-times"></i></button>
-          </div>
-          <div style="font-size:9px;color:#8896ab;margin-top:4px"><i class="fas fa-info-circle"></i> YouTube থেকে Share → Embed করুন, পুরো iframe কোড পেস্ট করুন</div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:10px;background:#f7f2ea;border-radius:11px;padding:10px 13px;margin-bottom:16px">
-          <div style="flex:1">
-            <div style="font-size:12px;font-weight:600;color:#141820">ফিচার্ড পণ্য</div>
-            <div style="font-size:10px;color:#8896ab">হোমপেজে প্রথমে দেখাবে</div>
-          </div>
-          <label style="position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0">
-            <input type="checkbox" id="_wbFeat" style="opacity:0;width:0;height:0">
-            <span onclick="const cb=document.getElementById('_wbFeat');cb.checked=!cb.checked;this.style.background=cb.checked?'#d4922a':'#ccc'" style="position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:24px;transition:.3s"></span>
-          </label>
-        </div>
-
-        <button onclick="saveProductToWebsite()" style="width:100%;background:linear-gradient(135deg,#d4922a,#f0b84e);border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;color:#141820;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:'IBM Plex Sans',sans-serif">
-          <i class="fas fa-save"></i> ওয়েবসাইটে সেভ করুন
-        </button>
       </div>
-    `
+    `,
+    didOpen: async () => {
+      const catInput = document.getElementById('_wbCat');
+      if(!catInput) return;
+      catInput.value = '';
+      catInput.style.borderColor = 'rgba(212,146,42,.18)';
+      catInput.style.color = '#fff';
+
+      // Firebase থেকে সরাসরি fresh data পড়ো — cache stale হতে পারে
+      let prods = [];
+      try{
+        const snap = await db.ref('fh/websiteProducts').once('value');
+        const raw = snap.val()||{};
+        prods = Object.values(raw).filter(Boolean);
+        // cache আপডেট
+        prods.forEach(p=>{ if(p&&p.id) _wbAllProducts[p.id]=p; });
+      } catch(e){
+        // Firebase ব্যর্থ হলে cache ব্যবহার করো
+        prods = Object.values(_wbAllProducts||{}).filter(Boolean);
+      }
+
+      // sortOrder > 9999 হলে invalid (পুরনো timestamp ইত্যাদি) — ignore
+      const validOrders = prods
+        .map(p => parseInt(p.sortOrder)||0)
+        .filter(n => n > 0 && n <= 9999);
+
+      // max = Firebase sortOrder এর max অথবা মোট পণ্য সংখ্যা — যেটা বড়
+      const maxFromOrders = validOrders.length ? Math.max(...validOrders) : 0;
+      const maxFromCount  = prods.length;
+      const nextOrder     = Math.max(maxFromOrders, maxFromCount) + 1;
+
+      // value এর বদলে placeholder — click করলেই ফাঁকা হবে
+      catInput.value = '';
+      catInput.placeholder = nextOrder;
+      catInput.dataset.nextOrder = nextOrder;
+      catInput.style.borderColor = 'rgba(212,146,42,.18)';
+      catInput.style.color = 'rgba(255,255,255,.35)';
+    }
   });
 }
 
@@ -6079,8 +6234,12 @@ async function saveProductToWebsite(){
 
   const desc = document.getElementById('_wbDesc')?.value?.trim()||'';
   const discount = parseFloat(document.getElementById('_wbDiscount')?.value)||0;
+  if(discount > 0 && discount >= price){ showToast('❌ ছাড়ের পরিমাণ মূল্যের চেয়ে কম হতে হবে'); return; }
   const stock = parseInt(document.getElementById('_wbStock')?.value)||0;
   const category = document.getElementById('_wbCat')?.value?.trim()||'';
+  const _catEl = document.getElementById('_wbCat');
+  // ফাঁকা থাকলে placeholder (suggested) নম্বর ব্যবহার করো
+  const sortOrder = parseInt(_catEl?.value) || parseInt(_catEl?.placeholder) || 0;
   const sizesRaw = document.getElementById('_wbSizes')?.value?.trim()||'';
   const sizes = sizesRaw ? sizesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
   const colorsRaw = document.getElementById('_wbColors')?.value?.trim()||'';
@@ -6093,9 +6252,24 @@ async function saveProductToWebsite(){
   stopWbBarcodeScanner();
 
   const id = 'wp_'+Date.now();
-  const product = { id, name, desc, price, discount, stock, qty: stock, category, sizes, colors, featured, image, images: images.length>1 ? images : undefined, barcode: barcode||null, youtubeEmbed: youtubeEmbed||null, ts:Date.now(), active:true, inStock: stock > 0 };
+  const product = { id, name, desc, price, discount, stock, qty: stock, category, sortOrder, sizes, colors, featured, image, barcode: barcode||null, youtubeEmbed: youtubeEmbed||null, ts:Date.now(), active:true, inStock: stock > 0 };
+  if(images.length > 1) product.images = images;
 
   try {
+    // duplicate sortOrder হলে বিদ্যমান পণ্যগুলোকে shift করো
+    if(sortOrder > 0){
+      const existingSnap = await db.ref('fh/websiteProducts').once('value');
+      const existingData = existingSnap.val() || {};
+      const multiShift = {};
+      Object.entries(existingData).forEach(([k, p]) => {
+        if(p && parseInt(p.sortOrder) >= sortOrder){
+          multiShift['fh/websiteProducts/' + k + '/sortOrder'] = parseInt(p.sortOrder) + 1;
+        }
+      });
+      if(Object.keys(multiShift).length > 0){
+        await db.ref().update(multiShift);
+      }
+    }
     await fbSet('fh/websiteProducts/'+id, product);
     Swal.close();
     showToast('✓ পণ্য ওয়েবসাইটে যোগ হয়েছে!');
@@ -6103,7 +6277,8 @@ async function saveProductToWebsite(){
     loadWebsitePageData();
     Swal.fire({icon:'success',title:'পণ্য যোগ হয়েছে!',text:name,timer:1800,showConfirmButton:false,background:'#1a1f2e',color:'#fff'});
   } catch(e){
-    showToast('❌ সেভ করতে সমস্যা হয়েছে');
+    console.error('saveProduct error:', e);
+    showToast('❌ সেভ ব্যর্থ: ' + (e?.message||e?.code||'অজানা সমস্যা'));
   }
 }
 
@@ -6147,9 +6322,7 @@ function wbPreviewImg(prodId){
     ov.innerHTML = `
       <button onclick="document.getElementById('_wbImgOverlay').remove()" style="position:fixed;top:14px;right:14px;width:36px;height:36px;border-radius:10px;background:rgba(220,53,69,.2);border:1px solid rgba(220,53,69,.4);color:#dc3545;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2"><i class="fas fa-times"></i></button>
       <div style="position:relative;max-width:90vw;max-height:78vh;display:flex;align-items:center;justify-content:center">
-        ${cur>0?`<button onclick="_wbGalleryNav(-1)" style="position:absolute;left:-14px;z-index:2;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-left"></i></button>`:''}
         ${mediaHtml}
-        ${cur<total-1?`<button onclick="_wbGalleryNav(1)" style="position:absolute;right:-14px;z-index:2;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-right"></i></button>`:''}
       </div>
       <div style="color:rgba(255,255,255,.8);font-size:13px;font-weight:600;font-family:'IBM Plex Sans',sans-serif">${p.name||''}${total>1?` <span style="font-size:10px;color:rgba(255,255,255,.4)">${cur+1}/${total}</span>`:''}</div>
       ${total>1?`<div style="display:flex;gap:5px">${dotHtml}</div>`:''}`;
@@ -6162,6 +6335,24 @@ function wbPreviewImg(prodId){
 
   render();
   ov.onclick = e => { if(e.target === ov) ov.remove(); };
+
+  // Touch swipe support
+  let _tsX = null, _tsY = null;
+  ov.addEventListener('touchstart', e => {
+    _tsX = e.touches[0].clientX;
+    _tsY = e.touches[0].clientY;
+  }, { passive: true });
+  ov.addEventListener('touchend', e => {
+    if(_tsX === null) return;
+    const dx = e.changedTouches[0].clientX - _tsX;
+    const dy = e.changedTouches[0].clientY - _tsY;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if(dx < 0 && cur < media.length - 1) window._wbGalleryNav(1);
+      else if(dx > 0 && cur > 0) window._wbGalleryNav(-1);
+    }
+    _tsX = null; _tsY = null;
+  }, { passive: true });
+
   document.body.appendChild(ov);
 }
 
@@ -6179,7 +6370,14 @@ function loadWebsiteProductList(){
       if(badge) badge.innerText='০টি';
       return;
     }
-    const products = Object.entries(data).map(([id,p])=>({...p,id})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    const products = Object.entries(data).map(([id,p])=>({...p,id})).sort((a,b)=>{
+      const aO = parseInt(a.sortOrder)||0;
+      const bO = parseInt(b.sortOrder)||0;
+      if(aO > 0 && bO > 0) return aO - bO;
+      if(aO > 0) return -1;
+      if(bO > 0) return 1;
+      return (b.ts||0) - (a.ts||0);
+    });
     // cache for edit
     _wbAllProducts = {};
     products.forEach(p=>{ _wbAllProducts[p.id]=p; });
@@ -6200,27 +6398,36 @@ function loadWebsiteProductList(){
     const lowTotal = document.getElementById('wbLowStockTotal');
     if(lowBadge){ lowBadge.style.display = lowItems.length>0 ? 'inline-flex' : 'none'; }
     if(lowTotal){ lowTotal.innerText=lowItems.length; }
-    list.innerHTML = products.map(p=>{
+    list.innerHTML = products.map((p, idx)=>{
       const hasImg = p.image && p.image.length > 10;
+      const autoIndex = idx + 1;
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-bottom:1px solid var(--border)">
         <div style="width:44px;height:44px;border-radius:10px;background:var(--parchment);flex-shrink:0;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;${hasImg?'cursor:zoom-in':''}" ${hasImg?`onclick="wbPreviewImg('${p.id}')"`:''}>
           ${hasImg?`<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;pointer-events:none" alt="${esc(p.name)}">`:`<i class="fas fa-image" style="color:var(--muted);font-size:16px"></i>`}
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name||'—')}</div>
-          <div style="font-size:11px;color:var(--muted)">৳${parseFloat(p.price||0).toFixed(0)}${p.discount?` <span style="text-decoration:line-through;color:var(--muted);font-size:10px">৳${parseFloat(p.price).toFixed(0)}</span> <span style="color:var(--success)">৳${parseFloat(p.discount).toFixed(0)}</span>`:''}${p.category?' · '+esc(p.category):''}</div>
+          <div style="font-size:11px;color:var(--muted)">${(()=>{ const pr=parseFloat(p.price||0); const disc=parseFloat(p.discount||0); const salePrice=pr-disc; if(disc>0&&disc<pr){ return `<span style="text-decoration:line-through;color:var(--muted);font-size:10px">৳${pr.toFixed(0)}</span> <span style="color:var(--success);font-weight:700">৳${salePrice.toFixed(0)}</span>`; } return `৳${pr.toFixed(0)}`; })()} · <span style="color:var(--amber);font-weight:700">ক্রম: ${autoIndex}</span></div>
           ${p.featured?`<span style="font-size:9px;background:rgba(212,146,42,.15);color:var(--amber);border-radius:6px;padding:2px 6px;font-weight:700"><i class="fas fa-star"></i> ফিচার্ড</span>`:''}
         </div>
         <div style="display:flex;gap:5px;flex-shrink:0">
           <button onclick="wbToggleProductActive('${p.id}',${!p.active})" style="padding:5px 8px;border:none;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;background:${p.active!==false?'rgba(26,158,92,.1)':'rgba(220,53,69,.1)'};color:${p.active!==false?'var(--success)':'var(--danger)'}">
             ${p.active!==false?'<i class="fas fa-eye"></i>':'<i class="fas fa-eye-slash"></i>'}
           </button>
-          <button onclick="wbEditProduct('${p.id}')" style="padding:5px 8px;background:${Number(p.stock||0)<=(settings.lowThreshWeb||5)?'rgba(220,53,69,.15)':'rgba(37,99,235,.1)'};border:none;border-radius:8px;color:${Number(p.stock||0)<=(settings.lowThreshWeb||5)?'var(--danger)':'var(--info)'};font-size:10px;font-weight:700;cursor:pointer"><i class="fas fa-pen"></i></button>
+          <button onclick="wbEditProduct('${p.id}',${autoIndex})" style="padding:5px 8px;background:${Number(p.stock||0)<=(settings.lowThreshWeb||5)?'rgba(220,53,69,.15)':'rgba(37,99,235,.1)'};border:none;border-radius:8px;color:${Number(p.stock||0)<=(settings.lowThreshWeb||5)?'var(--danger)':'var(--info)'};font-size:10px;font-weight:700;cursor:pointer"><i class="fas fa-pen"></i></button>
           <button onclick="wbDeleteProduct('${p.id}')" style="padding:5px 8px;background:rgba(220,53,69,.1);border:none;border-radius:8px;color:var(--danger);font-size:10px;font-weight:700;cursor:pointer"><i class="fas fa-trash"></i></button>
         </div>
       </div>`;
     }).join('');
   });
+}
+
+/* ── এডিট মোডাল ক্রম নং চেক ── */
+function checkEpSortOrder(input, currentId){
+  const val = parseInt(input.value);
+  if(!val){ input.style.color='#141820'; return; }
+  const isDup = Object.values(_wbAllProducts||{}).some(p => p.id !== currentId && parseInt(p.sortOrder)===val);
+  input.style.color = isDup ? '#dc3545' : '#141820';
 }
 
 /* ── পণ্য শো/হাইড ── */
@@ -6246,16 +6453,18 @@ function epYoutubePreview(val){
 /* ── পণ্য এডিট ── */
 let _wbAllProducts = {};
 let _wbEditImgBase64 = '';
-async function wbEditProduct(prodId){
+async function wbEditProduct(prodId, listIndex){
   const p = _wbAllProducts[prodId];
   if(!p){ showToast('পণ্য খুঁজে পাওয়া যায়নি'); return; }
+  // listIndex দিয়ে sortOrder ওভাররাইট করা ঠিক না — আসল sortOrder রাখো
   _wbEditImgBase64 = p.image || '';
 
-  const s = 'margin:0;width:100%;box-sizing:border-box;font-size:12px;height:34px;border-radius:7px;border:1px solid #ddd;padding:0 9px;color:#141820;background:#fafafa;outline:none';
+  const _iS = 'width:100%;padding:6px 9px;border:1px solid #e2ddd5;border-radius:7px;font-size:11px;color:#141820;background:#f7f2ea;outline:none;font-family:\'IBM Plex Sans\',sans-serif';
+  const _lS = 'font-size:9px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px';
   const { value: formValues } = await Swal.fire({
     background: '#fff',
     color: '#141820',
-    width: '96vw',
+    width: 'min(420px,95vw)',
     padding: '0',
     showCancelButton: true,
     confirmButtonText: '<i class="fas fa-save"></i> সেভ',
@@ -6263,83 +6472,114 @@ async function wbEditProduct(prodId){
     confirmButtonColor: '#d4922a',
     cancelButtonColor: '#8896ab',
     focusConfirm: false,
-    customClass: { popup: 'ep-popup', htmlContainer: 'ep-html' },
+    customClass: { popup: 'wb-add-popup', htmlContainer: 'ep-html' },
     html: `
-      <style>
-        .ep-popup { border-radius:14px !important; overflow:hidden !important; }
-        .ep-html { margin:0 !important; padding:0 !important; }
-        .ep-popup .swal2-actions { margin:0 !important; padding:10px 12px 12px !important; gap:8px !important; }
-        .ep-popup .swal2-confirm, .ep-popup .swal2-cancel { border-radius:9px !important; font-size:13px !important; font-weight:700 !important; padding:9px 0 !important; flex:1 !important; margin:0 !important; }
-      </style>
-      <div style="background:#d4922a;padding:10px 12px 9px;display:flex;align-items:center;gap:8px">
-        <div id="ep_img_wrap" onclick="epImgAction()" style="width:44px;height:44px;border-radius:9px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative" title="ছবি দেখুন / রিমুভ করুন">
-          ${p.image&&p.image.length>10?`<img id="ep_img_preview" src="${p.image}" style="width:100%;height:100%;object-fit:cover;pointer-events:none"><div style="position:absolute;inset:0;background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-eye" style="color:#fff;font-size:12px"></i></div>`:`<i class="fas fa-image" id="ep_img_icon" style="color:rgba(255,255,255,.7);font-size:18px"></i>`}
+      <div style="text-align:left;padding:14px 14px 4px">
+        <!-- হেডার -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0ece4">
+          <div id="ep_img_wrap" onclick="epImgAction()" style="width:36px;height:36px;border-radius:8px;background:#f7f2ea;border:1.5px solid #e2ddd5;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative" title="ছবি দেখুন / পরিবর্তন করুন">
+            ${p.image&&p.image.length>10?`<img id="ep_img_preview" src="${p.image}" style="width:100%;height:100%;object-fit:cover;pointer-events:none"><div style="position:absolute;inset:0;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-eye" style="color:#fff;font-size:10px"></i></div>`:`<i class="fas fa-image" id="ep_img_icon" style="color:#d4922a;font-size:15px"></i>`}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:9px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.4px">পণ্য এডিট করুন</div>
+            <div style="font-size:12px;font-weight:800;color:#141820;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name||'—')}</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:4px;background:#f7f2ea;border:1px solid #e2ddd5;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:10px;color:#8896ab;font-weight:700;flex-shrink:0">
+            <i class="fas fa-images" style="color:#d4922a;font-size:10px"></i> ছবি
+            <input type="file" accept="image/*" multiple style="display:none" onchange="wbEditImgChange(this)">
+          </label>
         </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.3px">পণ্য এডিট করুন</div>
-          <div style="font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.name||'—')}</div>
+
+        <!-- বারকোড -->
+        <div style="margin-bottom:6px">
+          <label style="${_lS}">বারকোড / কোড</label>
+          <div style="display:flex;gap:4px">
+            <input id="ep_barcode" style="${_iS};flex:1;min-width:0;box-sizing:border-box" placeholder="কোড লিখুন বা স্ক্যান করুন" value="${esc(p.barcode||'')}">
+            <button type="button" onclick="startEpBarcodeScanner()" style="width:30px;height:30px;background:linear-gradient(135deg,#d4922a,#f0b84e);border:none;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0"><i class="fas fa-camera" style="color:#141820;font-size:11px"></i></button>
+          </div>
+          <div id="ep_scanner_wrap" style="display:none;margin-top:5px;border-radius:7px;overflow:hidden;border:1px solid #e2ddd5">
+            <div id="ep_scanner_box" style="width:100%;height:140px"></div>
+            <button type="button" onclick="stopEpBarcodeScanner()" style="width:100%;padding:5px;background:#f7f2ea;border:none;border-top:1px solid #e2ddd5;font-size:10px;color:#8896ab;cursor:pointer;font-family:inherit"><i class="fas fa-times"></i> স্ক্যানার বন্ধ</button>
+          </div>
         </div>
-        <label style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">
-          <i class="fas fa-images" style="font-size:11px"></i> ছবি
-          <input type="file" accept="image/*" multiple style="display:none" onchange="wbEditImgChange(this)">
-        </label>
-      </div>
-      <div style="padding:10px 12px 4px;display:flex;flex-direction:column;gap:6px;text-align:left">
-        <div style="display:flex;gap:5px;align-items:center">
-          <input id="ep_barcode" style="${s};flex:1;min-width:0" placeholder="বারকোড / কোড" value="${esc(p.barcode||'')}">
-          <button type="button" onclick="startEpBarcodeScanner()" style="width:30px;height:34px;background:linear-gradient(135deg,#d4922a,#f0b84e);border:none;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="স্ক্যান করুন"><i class="fas fa-camera" style="color:#141820;font-size:11px"></i></button>
+
+        <!-- পণ্যের নাম -->
+        <div style="margin-bottom:6px">
+          <label style="${_lS}">পণ্যের নাম <span style="color:#dc3545">*</span></label>
+          <input id="ep_name" style="${_iS};font-weight:700;box-sizing:border-box" placeholder="যেমন: গোলাপি শাড়ি" value="${esc(p.name||'')}">
         </div>
-        <div id="ep_scanner_wrap" style="display:none;border-radius:7px;overflow:hidden;border:1px solid #ddd">
-          <div id="ep_scanner_box" style="width:100%;height:180px"></div>
-          <button type="button" onclick="stopEpBarcodeScanner()" style="width:100%;padding:6px;background:#fafafa;border:none;border-top:1px solid #ddd;font-size:11px;color:#8896ab;cursor:pointer;font-family:inherit"><i class="fas fa-times"></i> স্ক্যানার বন্ধ করুন</button>
+
+        <!-- মূল্য / ছাড় / স্টক / ক্যাটাগরি — ৪ কলাম -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <label style="${_lS}">মূল্য (৳) <span style="color:#dc3545">*</span></label>
+            <input id="ep_price" type="number" style="${_iS};box-sizing:border-box" placeholder="০" value="${p.price||''}">
+          </div>
+          <div>
+            <label style="${_lS}">ছাড় (৳)</label>
+            <input id="ep_discount" type="number" style="${_iS};box-sizing:border-box" placeholder="০" value="${p.discount||''}">
+          </div>
+          <div>
+            <label style="${_lS}">স্টক</label>
+            <input id="ep_stock" type="number" style="${_iS};box-sizing:border-box" placeholder="০" value="${p.stock||''}">
+          </div>
+          <div>
+            <label style="${_lS}">ক্রম নং</label>
+            <input id="ep_category" type="number" style="${_iS};box-sizing:border-box" placeholder="১" min="1" step="1" value="${p.sortOrder||''}" oninput="checkEpSortOrder(this,'${p.id}')">
+          </div>
         </div>
-        <input id="ep_name" style="${s};font-weight:700;font-size:13px" placeholder="পণ্যের নাম *" value="${esc(p.name||'')}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-          <input id="ep_price" type="number" style="${s}" placeholder="মূল্য ৳ *" value="${p.price||''}">
-          <input id="ep_discount" type="number" style="${s}" placeholder="বিক্রির দাম ৳" value="${p.discount||''}">
+
+        <!-- সাইজ + কালার -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px">
+          <div>
+            <label style="${_lS}">সাইজ (কমা দিয়ে)</label>
+            <input id="ep_sizes" style="${_iS};box-sizing:border-box" placeholder="S, M, L, XL" value="${(p.sizes||[]).join(', ')}">
+          </div>
+          <div>
+            <label style="${_lS}">কালার (কমা দিয়ে)</label>
+            <input id="ep_colors" style="${_iS};box-sizing:border-box" placeholder="লাল, সাদা, নীল" value="${(p.colors||[]).join(', ')}">
+          </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-          <input id="ep_category" style="${s}" placeholder="ক্যাটাগরি" value="${esc(p.category||'')}">
-          <input id="ep_stock" type="number" style="${s}" placeholder="স্টক" value="${p.stock||''}">
+
+        <!-- বিবরণ -->
+        <div style="margin-bottom:6px">
+          <label style="${_lS}">বিবরণ</label>
+          <textarea id="ep_desc" style="${_iS};min-height:36px;resize:vertical;box-sizing:border-box;padding:6px 9px" placeholder="পণ্যের বিবরণ...">${esc(p.desc||'')}</textarea>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
-          <input id="ep_sizes" style="${s}" placeholder="সাইজ (S, M, L, XL)" value="${(p.sizes||[]).join(', ')}">
-          <input id="ep_colors" style="${s}" placeholder="কালার (লাল, সাদা)" value="${(p.colors||[]).join(', ')}">
-        </div>
-        <textarea id="ep_desc" style="margin:0;width:100%;box-sizing:border-box;font-size:12px;border-radius:7px;border:1px solid #ddd;padding:7px 9px;color:#141820;background:#fafafa;resize:none;height:52px;font-family:inherit;outline:none" placeholder="বিবরণ">${esc(p.desc||'')}</textarea>
-        <div>
-          <div style="font-size:10px;font-weight:700;color:#8896ab;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px"><i class="fab fa-youtube" style="color:#dc3545"></i> YouTube Embed কোড</div>
-          <textarea id="ep_youtube" style="margin:0;width:100%;box-sizing:border-box;font-size:10px;border-radius:7px;border:1px solid #ddd;padding:7px 9px;color:#141820;background:#fafafa;resize:none;height:52px;font-family:monospace;outline:none" placeholder="YouTube iframe embed কোড পেস্ট করুন..." oninput="epYoutubePreview(this.value)">${(p.youtubeEmbed||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
-          <div id="ep_yt_preview_wrap" style="display:${(p.youtubeEmbed && p.youtubeEmbed.trim())?'block':'none'};margin-top:5px;border-radius:7px;overflow:hidden;border:1px solid #ddd;background:#000;aspect-ratio:16/9;position:relative">
-            <div id="ep_yt_preview" style="width:100%;height:100%">${p.youtubeEmbed? (() => { const m = (p.youtubeEmbed||'').match(/src\s*=\s*["']([^"']+)["']/i); return m?`<iframe width="100%" height="100%" src="${m[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:block"></iframe>`:''; })():''}</div>
+
+        <!-- YouTube -->
+        <div style="margin-bottom:8px">
+          <label style="${_lS}"><i class="fab fa-youtube" style="color:#dc3545"></i> YouTube Embed</label>
+          <textarea id="ep_youtube" style="${_iS};min-height:36px;resize:vertical;font-family:monospace;font-size:9px;box-sizing:border-box;padding:6px 9px" placeholder='&lt;iframe src="https://www.youtube.com/embed/..."&gt;&lt;/iframe&gt;' oninput="epYoutubePreview(this.value)">${(p.youtubeEmbed||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+          <div id="ep_yt_preview_wrap" style="display:${(p.youtubeEmbed&&p.youtubeEmbed.trim())?'block':'none'};margin-top:5px;border-radius:7px;overflow:hidden;border:1px solid #e2ddd5;background:#000;aspect-ratio:16/9;position:relative">
+            <div id="ep_yt_preview" style="width:100%;height:100%">${p.youtubeEmbed?(()=>{const m=(p.youtubeEmbed||'').match(/src\s*=\s*["']([^"']+)["']/i);return m?`<iframe width="100%" height="100%" src="${m[1]}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:block"></iframe>`:'';})():''}</div>
             <button type="button" onclick="document.getElementById('ep_youtube').value='';document.getElementById('ep_yt_preview_wrap').style.display='none';document.getElementById('ep_yt_preview').innerHTML=''" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);border:none;color:#fff;border-radius:5px;padding:2px 6px;font-size:9px;cursor:pointer"><i class="fas fa-times"></i></button>
           </div>
         </div>
-        <label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;cursor:pointer;background:#fef9ee;border:1px solid #f0d9a0;border-radius:7px;padding:7px 10px">
-          <input type="checkbox" id="ep_featured" style="accent-color:#d4922a;width:14px;height:14px;flex-shrink:0" ${p.featured?'checked':''}>
-          <i class="fas fa-star" style="color:#d4922a;font-size:10px"></i> ফিচার্ড পণ্য হিসেবে দেখাও
-        </label>
       </div>`,
     preConfirm: () => {
       const name = document.getElementById('ep_name')?.value?.trim();
       const price = parseFloat(document.getElementById('ep_price')?.value);
       if(!name){ Swal.showValidationMessage('পণ্যের নাম দিন'); return false; }
       if(!price){ Swal.showValidationMessage('মূল্য দিন'); return false; }
+      const discountVal = parseFloat(document.getElementById('ep_discount')?.value)||0;
+      if(discountVal > 0 && discountVal >= price){ Swal.showValidationMessage('❌ ছাড়ের পরিমাণ মূল্যের চেয়ে কম হতে হবে'); return false; }
       const imgEl = document.getElementById('ep_img_preview');
       const imgSrc = _wbEditImgBase64 || (imgEl ? imgEl.src : '') || (p.image||'');
       const editImgs = (_wbEditImages||[]).filter(Boolean);
       stopEpBarcodeScanner();
       return {
         name, price,
-        discount: parseFloat(document.getElementById('ep_discount')?.value)||0,
+        discount: discountVal,
         category: document.getElementById('ep_category')?.value?.trim()||'',
+        sortOrder: parseInt(document.getElementById('ep_category')?.value)||0,
         stock: parseInt(document.getElementById('ep_stock')?.value)||0,
         qty: parseInt(document.getElementById('ep_stock')?.value)||0,
         inStock: (parseInt(document.getElementById('ep_stock')?.value)||0) > 0,
         sizes: (document.getElementById('ep_sizes')?.value||'').split(',').map(s=>s.trim()).filter(Boolean),
         colors: (document.getElementById('ep_colors')?.value||'').split(',').map(s=>s.trim()).filter(Boolean),
         desc: document.getElementById('ep_desc')?.value?.trim()||'',
-        featured: document.getElementById('ep_featured')?.checked||false,
+        featured: p.featured||false,
         barcode: document.getElementById('ep_barcode')?.value?.trim()||null,
         image: imgSrc,
         images: editImgs.length>1 ? editImgs : null,
@@ -6352,7 +6592,59 @@ async function wbEditProduct(prodId){
 
   try {
     const updated = { ...p, ...formValues };
-    await fbSet('fh/websiteProducts/'+prodId, updated);
+    const newOrder = parseInt(formValues.sortOrder)||0;
+    const oldOrder = parseInt(p.sortOrder)||0;
+
+    // ── Shift logic: নতুন ক্রম নং দিলে বাকিগুলো সরে যাবে ──
+    if(newOrder > 0 && newOrder !== oldOrder){
+      // সব পণ্য Firebase থেকে নিয়ে নাও
+      const snap = await db.ref('fh/websiteProducts').once('value');
+      const allData = snap.val() || {};
+      const multiUpdate = {};
+
+      // পুরনো list (এই পণ্যটা বাদে) sortOrder অনুযায়ী sort করো
+      const others = Object.entries(allData)
+        .filter(([id]) => id !== prodId)
+        .map(([id, pr]) => ({ id, sortOrder: parseInt(pr.sortOrder)||0 }))
+        .sort((a, b) => {
+          if(a.sortOrder > 0 && b.sortOrder > 0) return a.sortOrder - b.sortOrder;
+          if(a.sortOrder > 0) return -1;
+          if(b.sortOrder > 0) return 1;
+          return 0;
+        });
+
+      // নতুন position-এ insert করো, বাকিগুলো re-number করো
+      const reordered = [];
+      let inserted = false;
+      let counter = 1;
+      for(const item of others){
+        if(counter === newOrder && !inserted){
+          reordered.push({ id: prodId, sortOrder: newOrder });
+          inserted = true;
+          counter++;
+        }
+        reordered.push({ id: item.id, sortOrder: counter });
+        counter++;
+      }
+      if(!inserted) reordered.push({ id: prodId, sortOrder: counter });
+
+      // Firebase multi-update
+      // প্রথমে এই পণ্যের পুরো data সেভ করো
+      await fbSet('fh/websiteProducts/'+prodId, { ...updated, sortOrder: newOrder });
+      _wbAllProducts[prodId] = { ...updated, sortOrder: newOrder };
+
+      // বাকি পণ্যগুলোর শুধু sortOrder আপডেট করো
+      reordered.forEach(item => {
+        if(item.id === prodId) return; // এটা উপরে করা হয়েছে
+        multiUpdate['fh/websiteProducts/'+item.id+'/sortOrder'] = item.sortOrder;
+        if(_wbAllProducts[item.id]) _wbAllProducts[item.id].sortOrder = item.sortOrder;
+      });
+      if(Object.keys(multiUpdate).length > 0) await db.ref().update(multiUpdate);
+    } else {
+      await fbSet('fh/websiteProducts/'+prodId, updated);
+    }
+
+    _wbAllProducts[prodId] = updated;
     loadWebsiteProductList();
     loadWebsitePageData();
     showToast('✓ পণ্য আপডেট হয়েছে!');
@@ -7039,6 +7331,407 @@ async function addManualCustomer(){
     document.getElementById('newCustPass').value='';
     showToast('✓ নতুন কাস্টমার যোগ হয়েছে: '+name);
   } catch(e){ showToast('❌ যোগ করতে ব্যর্থ: '+e.message); }
+}
+
+/* ── WB ADD MODAL — T&C Badge helpers ── */
+function _updateWbTCBadge(){
+  const el = document.getElementById('_wbTCCount');
+  if(!el) return;
+  const keys = ['delivery','return','guarantee','support'];
+  let total = 0, active = 0;
+  keys.forEach(k => {
+    const d = _trustCache[k];
+    if(!d || !d.rules) return;
+    total += d.rules.length;
+    active += d.rules.filter(r => r.enabled !== false).length;
+  });
+  el.textContent = active + ' T&C';
+  const badge = document.getElementById('_wbTCBadge');
+  if(badge){
+    if(active === 0){
+      badge.style.background = 'rgba(220,53,69,.1)';
+      badge.style.borderColor = 'rgba(220,53,69,.3)';
+      el.style.color = '#f87171';
+      badge.querySelector('i').style.color = '#f87171';
+    } else {
+      badge.style.background = 'rgba(26,158,92,.13)';
+      badge.style.borderColor = 'rgba(26,158,92,.3)';
+      el.style.color = '#4ade80';
+      badge.querySelector('i').style.color = '#4ade80';
+    }
+  }
+}
+
+function _buildWbTCSummaryHTML(){
+  const keys = ['delivery','return','guarantee','support'];
+  const labels = { delivery:'দ্রুত ডেলিভারি', return:'৭ দিন রিটার্ন', guarantee:'মানের গ্যারান্টি', support:'সাপোর্ট ২৪/৭' };
+  const colors = { delivery:'#4ade80', return:'#60a5fa', guarantee:'#fbbf24', support:'#c084fc' };
+  const icons  = { delivery:'fa-truck-fast', return:'fa-rotate-left', guarantee:'fa-shield-halved', support:'fa-headset' };
+  let rows = '';
+  keys.forEach(k => {
+    const d = _trustCache[k];
+    const total  = d?.rules?.length || 0;
+    const active = d?.rules?.filter(r => r.enabled !== false).length || 0;
+    const activeColor = active > 0 ? colors[k] : '#f87171';
+    rows += '<div data-tckey="' + k + '" class="_wbtc_row" style="display:flex;align-items:center;gap:10px;padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;border-radius:8px;transition:.15s;margin:0 -8px">'
+      + '<div style="width:32px;height:32px;border-radius:9px;background:' + colors[k] + '1a;display:flex;align-items:center;justify-content:center;flex-shrink:0">'
+      +   '<i class="fas ' + icons[k] + '" style="font-size:12px;color:' + colors[k] + '"></i>'
+      + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      +   '<div style="font-size:12px;color:rgba(255,255,255,.9);font-weight:600">' + labels[k] + '</div>'
+      +   '<div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:1px">' + total + 'টি নিয়ম</div>'
+      + '</div>'
+      + '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'
+      +   '<div style="font-size:10px;font-weight:700;color:' + activeColor + '">' + active + '/' + total + ' সক্রিয়</div>'
+      +   '<i class="fas fa-chevron-right" style="font-size:10px;color:rgba(255,255,255,.3)"></i>'
+      + '</div>'
+    + '</div>';
+  });
+  return `<div style="text-align:left;padding:14px 16px 12px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <button id="_wbtc_summary_back" style="width:28px;height:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(255,255,255,.5);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <i class="fas fa-shield-halved" style="color:#4ade80;font-size:15px"></i>
+          <span style="font-family:'Lora',serif;font-size:14px;color:#fff">ট্রাস্ট ব্যাজ — T&C সারাংশ</span>
+        </div>
+        ${rows}
+      </div>`;
+}
+
+function _attachWbTCSummaryEvents(){
+  const summaryBack = document.getElementById('_wbtc_summary_back');
+  if(summaryBack) summaryBack.addEventListener('click', () => Swal.close());
+  document.querySelectorAll('._wbtc_row').forEach(el => {
+    el.addEventListener('mouseover', () => el.style.background = 'rgba(255,255,255,.05)');
+    el.addEventListener('mouseout',  () => el.style.background = 'transparent');
+    el.addEventListener('click', () => {
+      const k = el.getAttribute('data-tckey');
+      if(k) _showWbTCDetailInline(k);
+    });
+  });
+}
+
+function showWbTCInfo(){
+  // যদি wb-add modal ইতিমধ্যে খোলা থাকে, তাহলে নতুন Swal না খুলে
+  // একটি আলাদা overlay panel দিয়ে T&C summary দেখাই
+  const existingSwal = document.querySelector('.swal2-popup.wb-add-popup');
+  if(existingSwal){
+    // wb-add modal খোলা আছে — overlay panel ব্যবহার করো
+    _showWbTCOverlay('summary', null);
+    return;
+  }
+  Swal.fire({
+    background:'#2a3245',
+    color:'#fff',
+    width:'min(320px,calc(100vw - 32px))',
+    padding:'0',
+    html: _buildWbTCSummaryHTML(),
+    showConfirmButton: false,
+    customClass: {
+      actions: 'swal-no-actions',
+      popup: 'swal-tc-detail-popup',
+      htmlContainer: 'swal-tc-detail-html'
+    },
+    didOpen: () => { _attachWbTCSummaryEvents(); }
+  });
+}
+
+/* ── wb-add modal খোলা থাকলে T&C panel overlay হিসেবে দেখাই ── */
+function _showWbTCOverlay(view, key){
+  // পুরনো overlay সরাও
+  const old = document.getElementById('_wbtc_overlay');
+  if(old) old.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = '_wbtc_overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.55)';
+  overlay.addEventListener('click', (e) => { if(e.target === overlay){ overlay.remove(); } });
+
+  let html = '';
+  if(view === 'summary'){
+    html = `<div style="background:#2a3245;border-radius:16px;width:min(320px,calc(100vw - 32px));box-shadow:0 8px 32px rgba(0,0,0,.7);overflow:hidden">
+      ${_buildWbTCSummaryHTML()}
+    </div>`;
+  } else if(view === 'detail' && key){
+    const { labels, colors, icons, rules, ruleRows } = _buildWbTCDetailHTML(key);
+    html = `<div style="background:#2a3245;border-radius:16px;width:min(360px,calc(100vw - 16px));box-shadow:0 8px 32px rgba(0,0,0,.7);overflow:hidden" id="_wbtcdetail_root">
+      <div style="display:flex;align-items:center;gap:10px;padding:13px 14px 11px;border-bottom:1px solid rgba(255,255,255,.07)">
+        <button id="_wbtc_back_btn" style="width:28px;height:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(255,255,255,.5);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div style="width:30px;height:30px;border-radius:8px;background:${colors[key]}1a;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="fas ${icons[key]}" style="font-size:12px;color:${colors[key]}"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Lora',serif;font-size:13px;color:#fff;line-height:1.2">${labels[key]}</div>
+          <div id="_wbtc_sub_${key}" style="font-size:9px;color:rgba(255,255,255,.3);margin-top:1px">${rules.filter(r=>r.enabled!==false).length}/${rules.length} সক্রিয় নিয়ম</div>
+        </div>
+        <button onclick="wbTCAddRule('${key}')" title="নতুন নিয়ম যোগ করুন" style="width:28px;height:28px;background:${colors[key]}20;border:1px solid ${colors[key]}40;border-radius:7px;color:${colors[key]};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div id="_wbtc_list_${key}" style="padding:4px 14px 14px;max-height:360px;overflow-y:auto">
+        ${ruleRows}
+      </div>
+    </div>`;
+  }
+
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+
+  // events
+  requestAnimationFrame(() => {
+    if(view === 'summary'){
+      _attachWbTCSummaryEvents();
+      const summaryBack = document.getElementById('_wbtc_summary_back');
+      if(summaryBack){
+        summaryBack.replaceWith(summaryBack.cloneNode(true)); // listener পরিষ্কার
+        document.getElementById('_wbtc_summary_back').addEventListener('click', () => {
+          const ov = document.getElementById('_wbtc_overlay');
+          if(ov) ov.remove();
+        });
+      }
+      document.querySelectorAll('._wbtc_row').forEach(el => {
+        el.addEventListener('click', () => {
+          const k = el.getAttribute('data-tckey');
+          if(k) _showWbTCOverlay('detail', k);
+        });
+      });
+    } else if(view === 'detail'){
+      const backBtn = document.getElementById('_wbtc_back_btn');
+      if(backBtn) backBtn.addEventListener('click', () => _showWbTCOverlay('summary', null));
+    }
+  });
+}
+
+/* detail view overlay রিফ্রেশ (inline edit/toggle এর পর) */
+function _refreshWbTCOverlayDetail(key){
+  const ov = document.getElementById('_wbtc_overlay');
+  if(!ov) return;
+  const { rules, ruleRows } = _buildWbTCDetailHTML(key);
+  const listEl = document.getElementById('_wbtc_list_'+key);
+  const subEl  = document.getElementById('_wbtc_sub_'+key);
+  if(listEl) listEl.innerHTML = ruleRows;
+  if(subEl)  subEl.textContent = rules.filter(r=>r.enabled!==false).length+'/'+rules.length+' সক্রিয় নিয়ম';
+}
+
+function _buildWbTCDetailHTML(key){
+  const labels = { delivery:'দ্রুত ডেলিভারি', return:'৭ দিন রিটার্ন', guarantee:'মানের গ্যারান্টি', support:'সাপোর্ট ২৪/৭' };
+  const colors = { delivery:'#4ade80', return:'#60a5fa', guarantee:'#fbbf24', support:'#c084fc' };
+  const icons  = { delivery:'fa-truck-fast', return:'fa-rotate-left', guarantee:'fa-shield-halved', support:'fa-headset' };
+  const d = _trustCache[key];
+  const rules = d?.rules || [];
+  const col = colors[key];
+  let ruleRows = '';
+  if(rules.length === 0){
+    ruleRows = `<div style="text-align:center;padding:24px 0;color:rgba(255,255,255,.3);font-size:12px"><i class="fas fa-inbox" style="font-size:22px;display:block;margin-bottom:8px;opacity:.4"></i>কোনো নিয়ম যোগ করা হয়নি</div>`;
+  } else {
+    rules.forEach((r, i) => {
+      const enabled = r.enabled !== false;
+      ruleRows += `
+      <div id="_wbtcrow_${key}_${i}" data-idx="${i}" style="display:flex;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:stretch;transition:background .15s">
+        <!-- সিরিয়াল নম্বর উপরে, টগল বাটন নিচে — সমান সাইজ -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;justify-content:flex-start">
+          <span class="_wbtc_serial" style="width:24px;height:24px;background:rgba(255,255,255,.07);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:rgba(255,255,255,.3);flex-shrink:0">${i+1}</span>
+          <button onclick="wbToggleTCRule('${key}',${i})" title="${enabled?'নিষ্ক্রিয় করুন':'সক্রিয় করুন'}" style="width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;transition:.18s;flex-shrink:0;background:${enabled?col+'28':'rgba(255,255,255,.07)'}">
+            <i class="fas fa-${enabled?'check':'xmark'}" style="font-size:9px;color:${enabled?col:'rgba(255,255,255,.25)'}"></i>
+          </button>
+        </div>
+        <!-- টেক্সট — সবসময় উপর থেকে শুরু -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:flex-start" id="_wbtctext_${key}_${i}">
+          <div style="font-size:11px;font-weight:600;color:${enabled?'rgba(255,255,255,.9)':'rgba(255,255,255,.35)'};margin-bottom:2px;line-height:1.4">${r.title||'(শিরোনাম নেই)'}</div>
+          ${r.text?`<div style="font-size:10px;color:${enabled?'rgba(255,255,255,.45)':'rgba(255,255,255,.2)'};line-height:1.5">${r.text}</div>`:''}
+        </div>
+        <!-- এডিট ও ডিলিট — সবসময় উপরে -->
+        <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;justify-content:flex-start">
+          <button onclick="wbTCInlineEdit('${key}',${i})" title="এডিট করুন" style="width:24px;height:24px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(251,191,36,.12);color:#fbbf24;font-size:9px;flex-shrink:0">
+            <i class="fas fa-pen"></i>
+          </button>
+          <button onclick="wbTCDeleteRule('${key}',${i})" title="মুছুন" style="width:24px;height:24px;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(248,113,113,.12);color:#f87171;font-size:9px;flex-shrink:0">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>`;
+    });
+  }
+  return { labels, colors, icons, rules, col, ruleRows };
+}
+
+/* overlay থেকে detail খোলার জন্য helper */
+function _showWbTCDetailInline(key){
+  const existingSwal = document.querySelector('.swal2-popup.wb-add-popup');
+  if(existingSwal || document.getElementById('_wbtc_overlay')){
+    _showWbTCOverlay('detail', key);
+  } else {
+    showWbTCDetail(key);
+  }
+}
+
+function showWbTCDetail(key){
+  const existingSwal = document.querySelector('.swal2-popup.wb-add-popup');
+  if(existingSwal){
+    _showWbTCOverlay('detail', key);
+    return;
+  }
+  const { labels, colors, icons, rules, ruleRows } = _buildWbTCDetailHTML(key);
+  Swal.fire({
+    background:'#2a3245',
+    color:'#fff',
+    width:'min(360px,calc(100vw - 16px))',
+    padding:'0',
+    html:`
+      <div style="text-align:left" id="_wbtcdetail_root">
+        <!-- হেডার -->
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 14px 11px;border-bottom:1px solid rgba(255,255,255,.07)">
+          <button id="_wbtc_back_btn" style="width:28px;height:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:rgba(255,255,255,.5);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <div style="width:30px;height:30px;border-radius:8px;background:${colors[key]}1a;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fas ${icons[key]}" style="font-size:12px;color:${colors[key]}"></i>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-family:'Lora',serif;font-size:13px;color:#fff;line-height:1.2">${labels[key]}</div>
+            <div id="_wbtc_sub_${key}" style="font-size:9px;color:rgba(255,255,255,.3);margin-top:1px">${rules.filter(r=>r.enabled!==false).length}/${rules.length} সক্রিয় নিয়ম</div>
+          </div>
+          <!-- প্লাস বাটন -->
+          <button onclick="wbTCAddRule('${key}')" title="নতুন নিয়ম যোগ করুন" style="width:28px;height:28px;background:${colors[key]}20;border:1px solid ${colors[key]}40;border-radius:7px;color:${colors[key]};cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <!-- নিয়মসমূহ -->
+        <div id="_wbtc_list_${key}" style="padding:4px 14px 14px;max-height:360px;overflow-y:auto">
+          ${ruleRows}
+        </div>
+      </div>`,
+    showConfirmButton: false,
+    customClass: {
+      actions: 'swal-no-actions',
+      popup: 'swal-tc-detail-popup',
+      htmlContainer: 'swal-tc-detail-html'
+    },
+    didOpen: () => {
+      const backBtn = document.getElementById('_wbtc_back_btn');
+      if(backBtn) backBtn.addEventListener('click', () => { Swal.close(); setTimeout(showWbTCInfo, 80); });
+    }
+  });
+}
+
+/* ── popup-এ inline list re-render ── */
+function _wbtcRefreshList(key){
+  const { colors, rules, ruleRows } = _buildWbTCDetailHTML(key);
+  const listEl = document.getElementById('_wbtc_list_'+key);
+  const subEl  = document.getElementById('_wbtc_sub_'+key);
+  if(listEl) listEl.innerHTML = ruleRows;
+  if(subEl)  subEl.textContent = rules.filter(r=>r.enabled!==false).length+'/'+rules.length+' সক্রিয় নিয়ম';
+  // overlay এ থাকলেও রিফ্রেশ করো
+  _refreshWbTCOverlayDetail(key);
+}
+
+/* ── popup-এ নতুন নিয়ম যোগ ── */
+function wbTCAddRule(key){
+  if(!_trustCache[key]) return;
+  _trustCache[key].rules = _trustCache[key].rules || [];
+  _trustCache[key].rules.push({ title:'', text:'', enabled:true });
+  const newIdx = _trustCache[key].rules.length - 1;
+  _wbtcRefreshList(key);
+  setTimeout(() => wbTCInlineEdit(key, newIdx), 60);
+}
+
+/* ── popup-এ নিয়ম ডিলিট (confirmation সহ) ── */
+async function wbTCDeleteRule(key, idx){
+  if(!_trustCache[key]?.rules) return;
+  const rule = _trustCache[key].rules[idx];
+  const title = rule?.title || 'এই নিয়ম';
+  const rowEl = document.getElementById('_wbtcrow_'+key+'_'+idx);
+  if(rowEl){
+    // inline confirmation
+    const orig = rowEl.innerHTML;
+    rowEl.innerHTML = `
+      <div style="flex:1;display:flex;align-items:center;gap:8px;padding:4px 0">
+        <i class="fas fa-triangle-exclamation" style="color:#f87171;font-size:13px;flex-shrink:0"></i>
+        <span style="font-size:11px;color:rgba(255,255,255,.7);flex:1">"${title}" মুছে ফেলবেন?</span>
+        <button onclick="_wbtcConfirmDelete('${key}',${idx})" style="padding:4px 11px;background:rgba(248,113,113,.2);border:1px solid rgba(248,113,113,.4);border-radius:6px;color:#f87171;font-size:10px;cursor:pointer;font-family:inherit;white-space:nowrap">
+          <i class="fas fa-check"></i> হ্যাঁ
+        </button>
+        <button onclick="_wbtcRefreshList('${key}')" style="padding:4px 11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:rgba(255,255,255,.45);font-size:10px;cursor:pointer;font-family:inherit;white-space:nowrap">
+          <i class="fas fa-xmark"></i> না
+        </button>
+      </div>`;
+  }
+}
+async function _wbtcConfirmDelete(key, idx){
+  if(!_trustCache[key]?.rules) return;
+  _trustCache[key].rules.splice(idx, 1);
+  _wbtcRefreshList(key);
+  renderTrustRules(key, _trustCache[key].rules);
+  try {
+    await firebase.database().ref('website/trustRules/'+key).set(_trustCache[key]);
+    showToast('🗑 নিয়ম মুছে ফেলা হয়েছে');
+  } catch(e){ console.warn('trust delete err', e); }
+}
+
+/* ── popup-এ inline এডিট ── */
+function wbTCInlineEdit(key, idx){
+  const colors = { delivery:'#4ade80', return:'#60a5fa', guarantee:'#fbbf24', support:'#c084fc' };
+  const col = colors[key];
+  const r = _trustCache[key]?.rules?.[idx];
+  if(!r && r!==undefined && idx >= (_trustCache[key]?.rules?.length||0)) return;
+  const rule = r || { title:'', text:'' };
+  const rowEl = document.getElementById('_wbtcrow_'+key+'_'+idx);
+  if(!rowEl) return;
+  rowEl.innerHTML = `
+    <div style="flex:1;padding:4px 0">
+      <input id="_wbtcedit_t_${key}_${idx}" value="${esc(rule.title||'')}" placeholder="শিরোনাম" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid ${col}55;border-radius:6px;color:#fff;font-size:11px;font-weight:600;padding:5px 8px;outline:none;font-family:inherit;margin-bottom:5px">
+      <textarea id="_wbtcedit_x_${key}_${idx}" placeholder="বিবরণ লিখুন..." style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:rgba(255,255,255,.75);font-size:10px;padding:5px 8px;resize:none;outline:none;font-family:inherit;line-height:1.5;min-height:48px">${esc(rule.text||'')}</textarea>
+      <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:4px">
+        <button onclick="wbTCSaveInlineEdit('${key}',${idx})" style="padding:4px 10px;background:${col}22;border:1px solid ${col}55;border-radius:6px;color:${col};font-size:10px;cursor:pointer;font-family:inherit"><i class="fas fa-check"></i> সেভ</button>
+        <button onclick="_wbtcRefreshList('${key}')" style="padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:rgba(255,255,255,.4);font-size:10px;cursor:pointer;font-family:inherit">বাতিল</button>
+      </div>
+    </div>`;
+  setTimeout(() => {
+    const inp = document.getElementById('_wbtcedit_t_'+key+'_'+idx);
+    if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }, 40);
+}
+
+/* ── inline এডিট সেভ ── */
+async function wbTCSaveInlineEdit(key, idx){
+  const titleEl = document.getElementById('_wbtcedit_t_'+key+'_'+idx);
+  const textEl  = document.getElementById('_wbtcedit_x_'+key+'_'+idx);
+  if(!titleEl || !_trustCache[key]?.rules) return;
+  _trustCache[key].rules[idx].title = titleEl.value.trim();
+  _trustCache[key].rules[idx].text  = textEl ? textEl.value.trim() : '';
+  _wbtcRefreshList(key);
+  renderTrustRules(key, _trustCache[key].rules);
+  try {
+    await firebase.database().ref('website/trustRules/'+key).set(_trustCache[key]);
+  } catch(e){ console.warn('trust save err', e); }
+}
+
+/* ── WB TC Quick Toggle (detail popup এ) ── */
+async function wbToggleTCRule(key, idx){
+  if(!_trustCache[key] || !_trustCache[key].rules[idx]) return;
+  const cur = _trustCache[key].rules[idx].enabled;
+  _trustCache[key].rules[idx].enabled = (cur === false) ? true : false;
+  const nowEnabled = _trustCache[key].rules[idx].enabled;
+  // enabled → উপরে, disabled → নিচে (relative order বজায় রেখে)
+  const enabledRules  = _trustCache[key].rules.filter(r => r.enabled !== false);
+  const disabledRules = _trustCache[key].rules.filter(r => r.enabled === false);
+  _trustCache[key].rules = [...enabledRules, ...disabledRules];
+  _wbtcRefreshList(key);
+  renderTrustRules(key, _trustCache[key].rules);
+  _updateWbTCBadge();
+  try {
+    const payload = {};
+    const TRUST_KEYS = ['delivery','return','guarantee','support'];
+    TRUST_KEYS.forEach(k => { payload[k] = _trustCache[k] || { note:'', rules:[] }; });
+    await fbSet('fh/trustRules', payload);
+    _trustLoaded = false;
+    showToast(nowEnabled ? '✓ নিয়ম সক্রিয় করা হয়েছে' : '⊘ নিয়ম নিষ্ক্রিয় করা হয়েছে');
+  } catch(e){
+    showToast('❌ সেভ ব্যর্থ: '+(e?.message||'অজানা'));
+  }
 }
 
 function downloadCustomerLoginCSV(){
